@@ -1,3 +1,4 @@
+import Logo from '@/components/Logo';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
@@ -20,7 +21,7 @@ export default function Icon() {
 				background: 'transparent'
 			}}
 		>
-			{/* <Logo width={180} height={180} /> */}
+			<Logo width={180} height={180} />
 		</div>,
 		{
 			...size

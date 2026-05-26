@@ -1,3 +1,4 @@
+import Logo from '@/components/Logo';
 import { writeFile } from 'fs/promises';
 import { ImageResponse } from 'next/og';
 import { join } from 'path';
@@ -15,14 +16,16 @@ export default async function generateIcon(width: number, height: number, name: 
 				alignItems: 'center',
 				justifyContent: 'center'
 			}}
-		></div>,
+		>
+			<Logo width={width} height={height} />
+		</div>,
 		{ width, height }
 	);
 
 	const buffer = Buffer.from(await res.arrayBuffer());
 	const outputPath = join(process.cwd(), 'public', subPath, name);
 
-	await writeFile(outputPath, buffer);
+	await writeFile(outputPath, buffer, { flag: 'w' });
 
 	console.log(`Generated ${outputPath}`);
 }

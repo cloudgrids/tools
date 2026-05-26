@@ -1,5 +1,6 @@
 'use client';
 
+import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
@@ -10,7 +11,7 @@ export default function NotFound() {
 			<div className="absolute inset-0 opacity-20">{/* <Loading /> */}</div>
 
 			<div className="absolute left-4 top-4 md:left-8 md:top-8 z-50 flex items-center gap-2">
-				{/* <Logo className="h-8 w-8" /> */}
+				<Logo className="h-8 w-8" />
 				<span className="text-lg font-bold tracking-tight uppercase font-black">Tools</span>
 			</div>
 

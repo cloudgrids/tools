@@ -1,5 +1,6 @@
 'use client';
 
+import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertCircle, Home } from 'lucide-react';
@@ -14,7 +15,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 					<Card className="relative z-10 max-w-2xl w-full p-8 sm:p-12 text-center space-y-8 border-none bg-card/50 backdrop-blur-xl shadow-2xl">
 						{/* Logo */}
 						<div className="flex justify-center">
-							{/* <AnimatedLogo className="h-24 w-24 sm:h-32 sm:w-32" loop={false} /> */}
+							<Logo className="h-24 w-24 sm:h-32 sm:w-32" />
 						</div>
 
 						{/* Error Icon */}
@@ -48,7 +49,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 						{/* Support Info */}
 						<div className="pt-8 border-t border-border/50">
 							<p className="text-xs text-muted-foreground/60 font-medium">
-								Need immediate assistance? Contact support@meowfans.com
+								Need immediate assistance? Contact <a href="mailto:[EMAIL_ADDRESS]">[EMAIL_ADDRESS]</a>
 							</p>
 						</div>
 					</Card>

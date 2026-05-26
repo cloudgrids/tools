@@ -31,17 +31,15 @@ export const AppConfig = {
 	themeColor: '#000000',
 	images: {
 		og: 'https://tools.cloudgrids.tech/opengraph-image',
-		logo: 'https://tools.cloudgrids.tech/logo.png',
-		favicon: 'https://tools.cloudgrids.tech/favicon.ico'
+		logo: '/logo.png',
+		favicon: '/favicon.ico'
 	},
 	manifest: '/site.webmanifest',
-	icons: {
-		icon: [
-			{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-			{ src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-			{ src: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' }
-		]
-	},
+	icons: [
+		{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+		{ src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+		{ src: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' }
+	],
 	contact: {
 		email: 'support-tools@cloudgrids.tech'
 	}

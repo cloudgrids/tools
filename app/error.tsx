@@ -1,5 +1,6 @@
 'use client';
 
+import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
@@ -18,7 +19,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 			<Card className="relative z-10 max-w-2xl w-full p-8 sm:p-12 text-center space-y-8 border-none bg-card/50 backdrop-blur-xl shadow-2xl">
 				{/* Logo */}
 				<div className="flex justify-center">
-					{/* <AnimatedLogo className="h-24 w-24 sm:h-32 sm:w-32" loop={false} /> */}
+					<Logo className="h-24 w-24 sm:h-32 sm:w-32" />
 				</div>
 
 				{/* Error Icon */}

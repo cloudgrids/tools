@@ -1,8 +1,9 @@
+import Logo from '@/components/Logo';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-export const alt = 'MeowFans Admin - Administrative Control Panel';
+export const alt = 'Tools from CloudGrids';
 export const size = {
 	width: 1200,
 	height: 630
@@ -36,7 +37,7 @@ export default function Image() {
 					transform: 'scale(1.5)'
 				}}
 			>
-				{/* <Logo width={128} height={128} /> */}
+				<Logo width={128} height={128} />
 			</div>
 			<div
 				style={{
@@ -56,7 +57,7 @@ export default function Image() {
 						letterSpacing: '-0.05em'
 					}}
 				>
-					<span style={{ color: '#fff' }}>MEOWFANS</span>
+					<span style={{ color: '#fff' }}>Tools</span>
 					<span
 						style={{
 							background: 'linear-gradient(to right, #ef4444, #b91c1c)',
@@ -65,7 +66,7 @@ export default function Image() {
 							fontStyle: 'italic'
 						}}
 					>
-						ADMIN
+						Developer kit
 					</span>
 				</div>
 				<div
@@ -77,12 +78,10 @@ export default function Image() {
 						textTransform: 'uppercase'
 					}}
 				>
-					Administrative Control Panel
+					Tools Panel
 				</div>
 			</div>
 		</div>,
-		{
-			...size
-		}
+		{ ...size }
 	);
 }

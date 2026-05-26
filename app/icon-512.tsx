@@ -1,3 +1,4 @@
+import Logo from '@/components/Logo';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
@@ -7,6 +8,7 @@ export const size = {
 	height: 512
 };
 export const contentType = 'image/png';
+export const alt = 'Tools from CloudGrids';
 
 export default function Icon() {
 	return new ImageResponse(
@@ -20,10 +22,8 @@ export default function Icon() {
 				background: 'transparent'
 			}}
 		>
-			{/* <Logo width={512} height={512} /> */}
+			<Logo width={512} height={512} />
 		</div>,
-		{
-			...size
-		}
+		{ ...size }
 	);
 }

@@ -25,16 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
 		manifest: AppConfig.manifest,
 		applicationName: AppConfig.applicationName,
 		description: AppConfig.description,
-		icons: {
-			icon: [
-				{ url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
-				{ url: '/favicon-512.png', sizes: '512x512', type: 'image/png' }
-			],
-			apple: [
-				{ url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
-				{ url: '/favicon-512.png', sizes: '512x512', type: 'image/png' }
-			]
-		},
 		openGraph: {
 			siteName: AppConfig.site_name,
 			title: AppConfig.title,

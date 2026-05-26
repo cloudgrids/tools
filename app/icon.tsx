@@ -1,3 +1,4 @@
+import Logo from '@/components/Logo';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
@@ -7,7 +8,7 @@ export const size = {
 	height: 192
 };
 export const contentType = 'image/png';
-export const alt = 'MeowFans Admin Studio';
+export const alt = 'Tools from CloudGrids';
 
 export default function Icon() {
 	return new ImageResponse(
@@ -21,10 +22,8 @@ export default function Icon() {
 				background: 'transparent'
 			}}
 		>
-			{/* <Logo width={192} height={192} /> */}
+			<Logo width={192} height={192} />
 		</div>,
-		{
-			...size
-		}
+		{ ...size }
 	);
 }
