@@ -1,145 +1,140 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { hashText, hashBuffer } from "@/lib/crypto";
-import type { HashResult } from "@/types";
-import { CopyButton } from "@/components/ui/CopyButton";
-import { useToast } from "@/components/ui/ToastProvider";
+import { CodeOutput, FileDropzone, StatusBadge, ToolPanel } from '@/components/tools/shared/ToolUi';
+import { Button } from '@/components/ui/button';
+import { CopyButton } from '@/components/ui/CopyButton';
+import { Textarea } from '@/components/ui/textarea';
+import type { HashResult } from '@/lib/contracts';
+import { hashBuffer, hashText } from '@/lib/crypto';
+import { formatBytes } from '@/lib/helpers';
+import { HASH_DEFAULT_TEXT, HASH_LABELS } from '@/lib/tool-samples';
+import { useEffect, useState } from 'react';
 
-const DEFAULT_TEXT = "The quick brown fox jumps over the lazy dog";
-
-function formatBytes(b: number): string {
-  if (b < 1024) return b + " B";
-  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + " KB";
-  return (b / 1024 / 1024).toFixed(2) + " MB";
+interface HashToolState {
+	loading: boolean;
+	results: HashResult[];
+	fileName: string;
+	fileSize: string;
+	fileResults: HashResult[];
 }
 
 export function HashTool() {
-  const { showToast } = useToast();
-  const [input,    setInput]   = useState(DEFAULT_TEXT);
-  const [results,  setResults] = useState<HashResult[]>([]);
-  const [loading,  setLoading] = useState(false);
-  const [fileName, setFileName] = useState("");
-  const [fileSize, setFileSize] = useState("");
-  const [fileResults, setFileResults] = useState<HashResult[]>([]);
+	const [input, setInput] = useState(HASH_DEFAULT_TEXT);
+	const [hashState, setHashState] = useState<HashToolState>({
+		loading: true,
+		results: [],
+		fileName: '',
+		fileSize: '',
+		fileResults: []
+	});
 
-  async function run() {
-    if (!input.trim()) return;
-    setLoading(true);
-    const r = await hashText(input);
-    setResults(r);
-    setLoading(false);
-  }
+	async function run(text: string) {
+		if (!text.trim()) return;
+		setHashState((previous) => ({ ...previous, loading: true }));
+		const results = await hashText(text);
+		setHashState((previous) => ({ ...previous, results, loading: false }));
+	}
 
-  useEffect(() => { run(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+	useEffect(() => {
+		let mounted = true;
+		void hashText(HASH_DEFAULT_TEXT).then((results) => {
+			if (mounted) setHashState((previous) => ({ ...previous, results, loading: false }));
+		});
+		return () => {
+			mounted = false;
+		};
+	}, []);
 
-  async function handleFile(file: File) {
-    setFileName(file.name);
-    setFileSize(formatBytes(file.size));
-    const buf = await file.arrayBuffer();
-    const r   = await hashBuffer(buf);
-    setFileResults(r);
-  }
+	async function handleFile(file: File) {
+		setHashState((previous) => ({ ...previous, fileName: file.name, fileSize: formatBytes(file.size) }));
+		const buffer = await file.arrayBuffer();
+		const results = await hashBuffer(buffer);
+		setHashState((previous) => ({ ...previous, fileResults: results }));
+	}
 
-  const LABEL: Record<string, string> = {
-    "SHA-1":   "SHA-1 (160-bit)",
-    "SHA-256": "SHA-256 (256-bit)",
-    "SHA-384": "SHA-384 (384-bit)",
-    "SHA-512": "SHA-512 (512-bit)",
-  };
+	return (
+		<div className="flex flex-col gap-4">
+			<ToolPanel
+				title="Input Text"
+				action={
+					<div className="flex flex-wrap gap-2">
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => {
+								setInput(HASH_DEFAULT_TEXT);
+								void run(HASH_DEFAULT_TEXT);
+							}}
+						>
+							Sample
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => {
+								setInput('');
+								setHashState((previous) => ({ ...previous, results: [] }));
+							}}
+						>
+							Clear
+						</Button>
+					</div>
+				}
+				contentClassName="space-y-4"
+			>
+				<Textarea
+					id="hash-input"
+					className="min-h-32 font-mono text-sm"
+					value={input}
+					onChange={(event) => setInput(event.target.value)}
+					placeholder="Enter text to hash..."
+					spellCheck={false}
+				/>
+				<Button onClick={() => void run(input)} disabled={hashState.loading}>
+					{hashState.loading ? 'Computing...' : 'Generate All Hashes'}
+				</Button>
+			</ToolPanel>
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="card">
-        <div className="card-header">
-          <span className="card-title">Input Text</span>
-          <div className="flex gap-8">
-            <button className="btn btn-ghost btn-sm" onClick={() => { setInput(DEFAULT_TEXT); run(); }}>Sample</button>
-            <button className="btn btn-ghost btn-sm" onClick={() => { setInput(""); setResults([]); }}>Clear</button>
-          </div>
-        </div>
-        <div className="card-body">
-          <textarea
-            id="hash-input"
-            className="editor w-full"
-            style={{ minHeight: 120 }}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter text to hash…"
-            spellCheck={false}
-          />
-          <div className="flex gap-8 mt-12">
-            <button className="btn btn-primary" onClick={run} disabled={loading}>
-              {loading ? "Computing…" : "🔐 Generate All Hashes"}
-            </button>
-          </div>
-        </div>
-      </div>
+			<ToolPanel title="Hash Results" contentClassName="space-y-4">
+				{hashState.results.length === 0 && !hashState.loading && (
+					<p className="text-sm text-muted-foreground">Enter text and generate hashes.</p>
+				)}
+				{hashState.loading && <p className="text-sm text-muted-foreground">Computing...</p>}
+				{hashState.results.map(({ algorithm, hash }) => (
+					<div key={algorithm} className="space-y-2">
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<StatusBadge tone="info">{HASH_LABELS[algorithm] ?? algorithm}</StatusBadge>
+							<CopyButton text={hash} label="Copy" />
+						</div>
+						<CodeOutput>{hash}</CodeOutput>
+					</div>
+				))}
+			</ToolPanel>
 
-      <div className="card">
-        <div className="card-header"><span className="card-title">Hash Results</span></div>
-        <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {results.length === 0 && !loading && (
-            <div className="text-muted text-sm">Enter text and click "Generate All Hashes"</div>
-          )}
-          {loading && <div className="text-muted text-sm">Computing…</div>}
-          {results.map(({ algorithm, hash }) => (
-            <div key={algorithm}>
-              <div className="flex items-center justify-between mb-6">
-                <span className="badge badge-info">{LABEL[algorithm] ?? algorithm}</span>
-                <CopyButton text={hash} label="Copy" />
-              </div>
-              <code className="text-mono" style={{
-                fontSize: 12, color: "var(--text-code)", wordBreak: "break-all",
-                background: "rgba(8,8,16,.5)", padding: "10px 14px",
-                borderRadius: 6, border: "1px solid var(--border-subtle)", display: "block",
-              }}>{hash}</code>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* File checksum */}
-      <div className="card">
-        <div className="card-header"><span className="card-title">File Checksum</span></div>
-        <div className="card-body">
-          <div
-            className="drop-zone"
-            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("over"); }}
-            onDragLeave={(e) => e.currentTarget.classList.remove("over")}
-            onDrop={(e) => {
-              e.preventDefault();
-              e.currentTarget.classList.remove("over");
-              if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-            }}
-            onClick={() => document.getElementById("hash-file")?.click()}
-          >
-            <div className="drop-zone-icon">🗃️</div>
-            <div className="drop-zone-text">Drop a file to compute SHA-256 &amp; SHA-512</div>
-            <input id="hash-file" type="file" style={{ display: "none" }}
-              onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }} />
-          </div>
-
-          {fileResults.length > 0 && (
-            <div className="mt-16">
-              <div className="font-semibold mb-12">📄 {fileName} <span className="text-muted text-sm">({fileSize})</span></div>
-              {fileResults.map(({ algorithm, hash }) => (
-                <div key={algorithm} className="mb-12">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="badge badge-info">{algorithm}</span>
-                    <CopyButton text={hash} label="Copy" />
-                  </div>
-                  <code style={{
-                    fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--text-code)",
-                    wordBreak: "break-all", background: "rgba(8,8,16,.5)", padding: "10px",
-                    borderRadius: 6, border: "1px solid var(--border-subtle)", display: "block",
-                  }}>{hash}</code>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+			<ToolPanel title="File Checksum" contentClassName="space-y-4">
+				<FileDropzone
+					id="hash-file"
+					title="Drop a file here or click to browse"
+					description="Compute SHA-256 and SHA-512 checksums"
+					onFile={(file) => void handleFile(file)}
+				/>
+				{hashState.fileResults.length > 0 && (
+					<div className="space-y-4">
+						<p className="break-all font-semibold">
+							{hashState.fileName} <span className="text-sm text-muted-foreground">({hashState.fileSize})</span>
+						</p>
+						{hashState.fileResults.map(({ algorithm, hash }) => (
+							<div key={algorithm} className="space-y-2">
+								<div className="flex flex-wrap items-center justify-between gap-2">
+									<StatusBadge tone="info">{algorithm}</StatusBadge>
+									<CopyButton text={hash} label="Copy" />
+								</div>
+								<CodeOutput>{hash}</CodeOutput>
+							</div>
+						))}
+					</div>
+				)}
+			</ToolPanel>
+		</div>
+	);
 }

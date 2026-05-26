@@ -1,136 +1,118 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { TOOLS } from "@/lib/tools";
+import { ToolIcon } from '@/components/tools/shared/ToolIcon';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+	SidebarContent,
+	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarGroupLabel,
+	SidebarHeader,
+	SidebarInput,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarSeparator,
+	Sidebar as UiSidebar,
+	useSidebar
+} from '@/components/ui/sidebar';
+import { TOOLS } from '@/lib/tools';
+import { House, Star } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export function Sidebar() {
+	const pathname = usePathname();
+	const [query, setQuery] = useState<string>('');
+	const { isMobile, setOpenMobile } = useSidebar();
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const pathname = usePathname();
-  const [query, setQuery] = useState("");
+	const filtered = useMemo(() => {
+		if (!query.trim()) return TOOLS;
+		const q = query.toLowerCase();
+		return TOOLS.filter((t) => t.name.toLowerCase().includes(q) || t.keywords.some((k) => k.includes(q)));
+	}, [query]);
 
-  const filtered = useMemo(() => {
-    if (!query.trim()) return TOOLS;
-    const q = query.toLowerCase();
-    return TOOLS.filter(
-      (t) =>
-        t.name.toLowerCase().includes(q) ||
-        t.keywords.some((k) => k.includes(q))
-    );
-  }, [query]);
+	// Close on route change (mobile)
+	useEffect(() => {
+		if (isMobile) setOpenMobile(false);
+	}, [pathname, isMobile, setOpenMobile]);
 
-  // Close on route change (mobile)
-  useEffect(() => { onClose(); }, [pathname, onClose]);
+	return (
+		<UiSidebar variant="sidebar" collapsible="offcanvas">
+			<SidebarHeader>
+				<div className="flex items-center gap-3 px-1">
+					<Avatar>
+						<AvatarFallback>DK</AvatarFallback>
+					</Avatar>
+					<div className="min-w-0">
+						<div className="truncate text-sm font-semibold">tools</div>
+						<div className="truncate text-xs text-muted-foreground">Developer Toolkit</div>
+					</div>
+				</div>
+				<SidebarInput
+					value={query}
+					onChange={(e) => setQuery(e.target.value)}
+					placeholder="Search tools…"
+					aria-label="Search tools"
+				/>
+			</SidebarHeader>
 
-  // Close on ESC key
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
+			<SidebarContent>
+				<SidebarGroup>
+					<SidebarGroupLabel>Navigation</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<SidebarMenuButton render={<Link href="/" />} isActive={pathname === '/'} tooltip="Home">
+									<House aria-hidden="true" />
+									<span>Home</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
 
-  return (
-    <>
-      {/* Mobile overlay */}
-      <div
-        className={`sidebar-overlay ${isOpen ? "visible" : ""}`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+				<SidebarSeparator />
 
-      <aside className={`sidebar ${isOpen ? "open" : ""}`} aria-label="Navigation">
-        {/* Header */}
-        <div className="sidebar-header">
-          <Link href="/" className="logo" onClick={onClose}>
-            <span className="logo-icon" aria-hidden="true">🛠️</span>
-            <span className="logo-text">
-              <span className="logo-name">DevKit Pro</span>
-              <span className="logo-tag">Developer Toolkit</span>
-            </span>
-          </Link>
-          <button
-            className="sidebar-close"
-            onClick={onClose}
-            aria-label="Close navigation"
-          >
-            ✕
-          </button>
-        </div>
+				<SidebarGroup>
+					<SidebarGroupLabel>Tools</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							{filtered.map((tool) => {
+								const isActive = pathname === `/tools/${tool.id}`;
+								return (
+									<SidebarMenuItem key={tool.id}>
+										<SidebarMenuButton
+											render={<Link href={`/tools/${tool.id}`} />}
+											isActive={isActive}
+											tooltip={tool.name}
+										>
+											<ToolIcon name={tool.icon} />
+											<span>{tool.name}</span>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								);
+							})}
+							{filtered.length === 0 && <div className="px-2 py-4 text-xs text-muted-foreground">No tools found</div>}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
 
-        {/* Search */}
-        <div className="sidebar-search">
-          <div className="search-wrap">
-            <span className="search-icon" aria-hidden="true">⌕</span>
-            <input
-              type="search"
-              placeholder="Search tools…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              aria-label="Search tools"
-              autoComplete="off"
-            />
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="sidebar-nav" aria-label="Tool list">
-          <div className="nav-section" aria-hidden="true">Navigation</div>
-
-          <Link
-            href="/"
-            className={`nav-item ${pathname === "/" ? "active" : ""}`}
-            aria-current={pathname === "/" ? "page" : undefined}
-          >
-            <span className="nav-icon" aria-hidden="true">🏠</span>
-            <span className="nav-label">Home</span>
-          </Link>
-
-          {filtered.length > 0 && (
-            <div className="nav-section" aria-hidden="true">Tools</div>
-          )}
-
-          {filtered.map((tool) => {
-            const isActive = pathname === `/tools/${tool.id}`;
-            return (
-              <Link
-                key={tool.id}
-                href={`/tools/${tool.id}`}
-                className={`nav-item ${isActive ? "active" : ""}`}
-                aria-current={isActive ? "page" : undefined}
-                title={tool.name}
-              >
-                <span className="nav-icon" aria-hidden="true">{tool.icon}</span>
-                <span className="nav-label">{tool.name}</span>
-              </Link>
-            );
-          })}
-
-          {filtered.length === 0 && (
-            <div style={{ padding: "var(--space-5) var(--space-3)", textAlign: "center", color: "var(--text-4)", fontSize: 13 }}>
-              No tools found
-            </div>
-          )}
-        </nav>
-
-        {/* Footer */}
-        <div className="sidebar-footer">
-          <a
-            href="https://github.com/devkit-pro/devkit-pro"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Star on GitHub"
-          >
-            <span aria-hidden="true">⭐</span>
-            <span>Star on GitHub</span>
-          </a>
-        </div>
-      </aside>
-    </>
-  );
+			<SidebarFooter>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton
+							render={<a href="https://github.com/devkit-pro/devkit-pro" target="_blank" rel="noopener noreferrer" />}
+						>
+							<Star aria-hidden="true" />
+							<span>Star on GitHub</span>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarFooter>
+		</UiSidebar>
+	);
 }

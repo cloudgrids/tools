@@ -1,106 +1,124 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { CopyButton } from "@/components/ui/CopyButton";
-
-function parseUrl(raw: string): Record<string, string> | null {
-  try {
-    const u = new URL(raw);
-    const params: Record<string, string> = {};
-    u.searchParams.forEach((v, k) => { params[k] = v; });
-    return {
-      protocol: u.protocol,
-      host:     u.host,
-      hostname: u.hostname,
-      port:     u.port || "(default)",
-      pathname: u.pathname,
-      search:   u.search,
-      hash:     u.hash || "(none)",
-      origin:   u.origin,
-      ...Object.fromEntries(Object.entries(params).map(([k, v]) => [`param:${k}`, v])),
-    };
-  } catch { return null; }
-}
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CopyButton } from '@/components/ui/CopyButton';
+import { Textarea } from '@/components/ui/textarea';
+import { parseUrl } from '@/lib/url';
+import { useMemo, useState } from 'react';
 
 export function UrlTool() {
-  const [input,   setInput]   = useState("https://devkit.pro/tools/url?query=hello+world&page=1&debug=true#section");
-  const [encoded, setEncoded] = useState("");
-  const [decoded, setDecoded] = useState("");
+	const [input, setInput] = useState('https://devkit.pro/tools/url?query=hello+world&page=1&debug=true#section');
+	const [encoded, setEncoded] = useState('');
+	const [decoded, setDecoded] = useState('');
 
-  const parsed = useMemo(() => parseUrl(input), [input]);
+	const parsed = useMemo(() => parseUrl(input), [input]);
 
-  function encode() {
-    setEncoded(encodeURIComponent(input));
-    setDecoded("");
-  }
-  function decode() {
-    try { setDecoded(decodeURIComponent(input)); setEncoded(""); }
-    catch { setDecoded("Error: Invalid encoded URI"); }
-  }
-  function encodeComponent() {
-    setEncoded(input.split("").map((c) => /[A-Za-z0-9\-_.~]/.test(c) ? c : "%" + c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")).join(""));
-  }
+	function encode() {
+		setEncoded(encodeURIComponent(input));
+		setDecoded('');
+	}
+	function decode() {
+		try {
+			setDecoded(decodeURIComponent(input));
+			setEncoded('');
+		} catch {
+			setDecoded('Error: Invalid encoded URI');
+		}
+	}
+	function encodeComponent() {
+		setEncoded(
+			input
+				.split('')
+				.map((c) => (/[A-Za-z0-9\-_.~]/.test(c) ? c : '%' + c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')))
+				.join('')
+		);
+	}
 
-  const output = encoded || decoded;
+	const output = encoded || decoded;
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="split">
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Input</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => { setInput(""); setEncoded(""); setDecoded(""); }}>Clear</button>
-          </div>
-          <div className="card-body">
-            <textarea
-              id="url-input"
-              className="editor w-full"
-              style={{ minHeight: 160 }}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Enter a URL or encoded string…"
-              spellCheck={false}
-            />
-            <div className="flex gap-8 mt-12 flex-wrap">
-              <button className="btn btn-primary" onClick={encode}>Encode URI</button>
-              <button className="btn btn-ghost"   onClick={decode}>Decode URI</button>
-              <button className="btn btn-ghost"   onClick={encodeComponent}>Encode Component</button>
-            </div>
-          </div>
-        </div>
+	return (
+		<div className="flex flex-col gap-4">
+			<div className="grid gap-4 lg:grid-cols-2">
+				<Card className="min-w-0">
+					<CardHeader>
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<CardTitle>Input</CardTitle>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => {
+									setInput('');
+									setEncoded('');
+									setDecoded('');
+								}}
+							>
+								Clear
+							</Button>
+						</div>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<Textarea
+							id="url-input"
+							className="h-40 font-mono text-sm"
+							value={input}
+							onChange={(e) => setInput(e.target.value)}
+							placeholder="Enter a URL or encoded string…"
+							spellCheck={false}
+						/>
+						<div className="flex gap-2 flex-wrap">
+							<Button onClick={encode}>Encode URI</Button>
+							<Button variant="outline" onClick={decode}>
+								Decode URI
+							</Button>
+							<Button variant="outline" onClick={encodeComponent}>
+								Encode Component
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
 
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Output</span>
-            <CopyButton text={output} label="Copy" />
-          </div>
-          <div className="card-body">
-            <pre id="url-output" className="output w-full" style={{ minHeight: 160 }}>{output}</pre>
-          </div>
-        </div>
-      </div>
+				<Card className="min-w-0">
+					<CardHeader>
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<CardTitle>Output</CardTitle>
+							<CopyButton text={output} label="Copy" />
+						</div>
+					</CardHeader>
+					<CardContent>
+						<pre
+							id="url-output"
+							className="w-full h-40 p-2 rounded-lg border border-input bg-muted font-mono text-sm overflow-auto"
+						>
+							{output}
+						</pre>
+					</CardContent>
+				</Card>
+			</div>
 
-      {parsed && (
-        <div className="card">
-          <div className="card-header"><span className="card-title">URL Breakdown</span></div>
-          <div className="card-body" style={{ padding: 0 }}>
-            {Object.entries(parsed).map(([key, val]) => (
-              <div key={key} style={{
-                display: "flex", alignItems: "center", gap: 16, padding: "10px 20px",
-                borderBottom: "1px solid var(--border-subtle)",
-              }}>
-                <span className="badge badge-purple" style={{ minWidth: 110, justifyContent: "center" }}>
-                  {key.replace("param:", "?")}
-                </span>
-                <code className="text-mono flex-1" style={{ fontSize: 13, color: "var(--text-code)", wordBreak: "break-all" }}>
-                  {val}
-                </code>
-                <CopyButton text={val} label="Copy" className="btn btn-ghost btn-xs" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+			{parsed && (
+				<Card>
+					<CardHeader>
+						<CardTitle>URL Breakdown</CardTitle>
+					</CardHeader>
+					<CardContent className="p-0">
+						<div className="divide-y divide-input border-t border-input">
+							{Object.entries(parsed).map(([key, val]) => (
+								<div
+									key={key}
+									className="flex flex-col items-start gap-2 px-4 py-2.5 transition-colors hover:bg-muted sm:flex-row sm:items-center sm:gap-4"
+								>
+									<span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100 min-w-fit">
+										{key.replace('param:', '?')}
+									</span>
+									<code className="min-w-0 flex-1 break-all font-mono text-sm text-secondary-foreground">{val}</code>
+									<CopyButton text={val} label="Copy" />
+								</div>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			)}
+		</div>
+	);
 }

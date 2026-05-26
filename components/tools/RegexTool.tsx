@@ -1,191 +1,159 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import type { RegexMatch } from "@/types";
-import { CopyButton } from "@/components/ui/CopyButton";
+import { CodeOutput, StatusBadge, ToolPanel } from '@/components/tools/shared/ToolUi';
+import { Button } from '@/components/ui/button';
+import { CopyButton } from '@/components/ui/CopyButton';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import type { RegexMatch } from '@/lib/contracts';
+import { REGEX_DEFAULT_TEXT, REGEX_SAMPLES } from '@/lib/tool-samples';
+import { useMemo, useState } from 'react';
 
-const SAMPLES: Record<string, { pattern: string; flags: string }> = {
-  Email:    { pattern: "[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}", flags: "g" },
-  URL:      { pattern: "https?:\\/\\/[^\\s]+", flags: "g" },
-  IPv4:     { pattern: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b", flags: "g" },
-  "HEX Color": { pattern: "#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})\\b", flags: "g" },
-  Date:     { pattern: "\\b\\d{4}-\\d{2}-\\d{2}\\b", flags: "g" },
-};
-
-const DEFAULT_TEXT =
-  "The quick brown fox jumps over the lazy dog.\nContact: hello@example.com or admin@devkit.io\nVisit https://devkit.pro for more info.";
-
-function escHtml(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHtml(value: string) {
+	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 export function RegexTool() {
-  const [pattern, setPattern] = useState("[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}");
-  const [flags,   setFlags]   = useState("g");
-  const [text,    setText]    = useState(DEFAULT_TEXT);
-  const [replace, setReplace] = useState("");
+	const [pattern, setPattern] = useState(REGEX_SAMPLES.Email.pattern);
+	const [flags, setFlags] = useState('g');
+	const [text, setText] = useState(REGEX_DEFAULT_TEXT);
+	const [replacement, setReplacement] = useState('');
 
-  const result = useMemo(() => {
-    if (!pattern) return null;
-    let rx: RegExp;
-    try {
-      const f = flags.includes("g") ? flags : flags + "g";
-      rx = new RegExp(pattern, f);
-    } catch (e) {
-      return { error: (e as Error).message };
-    }
-    const matches: RegexMatch[] = [...text.matchAll(rx)].map((m) => ({
-      match:  m[0],
-      index:  m.index ?? 0,
-      groups: m.slice(1),
-    }));
-    return { matches, rx };
-  }, [pattern, flags, text]);
+	const result = useMemo(() => {
+		if (!pattern) return null;
+		try {
+			const globalFlags = flags.includes('g') ? flags : `${flags}g`;
+			const expression = new RegExp(pattern, globalFlags);
+			const matches: RegexMatch[] = [...text.matchAll(expression)].map((match) => ({
+				match: match[0],
+				index: match.index ?? 0,
+				groups: match.slice(1)
+			}));
+			return { matches, expression };
+		} catch (error) {
+			return { error: (error as Error).message };
+		}
+	}, [pattern, flags, text]);
 
-  const highlighted = useMemo(() => {
-    if (!result || "error" in result || !result.matches.length) return escHtml(text);
-    const { rx } = result;
-    const safeRx = new RegExp(rx.source, rx.flags);
-    let last = 0, html = "";
-    for (const m of text.matchAll(safeRx)) {
-      html += escHtml(text.slice(last, m.index));
-      html += `<mark class="rx-match">${escHtml(m[0])}</mark>`;
-      last = (m.index ?? 0) + m[0].length;
-    }
-    return html + escHtml(text.slice(last));
-  }, [text, result]);
+	const highlighted = useMemo(() => {
+		if (!result || 'error' in result || !result.matches.length) return escapeHtml(text);
+		const expression = new RegExp(result.expression.source, result.expression.flags);
+		let last = 0;
+		let html = '';
+		for (const match of text.matchAll(expression)) {
+			html += escapeHtml(text.slice(last, match.index));
+			html += `<mark class="rounded bg-violet-100/60 px-0.5 ring-1 ring-violet-300">${escapeHtml(match[0])}</mark>`;
+			last = (match.index ?? 0) + match[0].length;
+		}
+		return html + escapeHtml(text.slice(last));
+	}, [text, result]);
 
-  const groupsText = useMemo(() => {
-    if (!result || "error" in result) return "";
-    return result.matches
-      .map((m, i) => {
-        const gs = m.groups.map((g, j) => `  Group ${j + 1}: ${g ?? "(undefined)"}`).join("\n");
-        return `Match ${i + 1}: "${m.match}"${gs ? "\n" + gs : ""}`;
-      })
-      .join("\n\n") || "No matches found.";
-  }, [result]);
+	const groupsText = useMemo(() => {
+		if (!result || 'error' in result) return '';
+		return (
+			result.matches
+				.map((match, index) => {
+					const groups = match.groups
+						.map((group, groupIndex) => `  Group ${groupIndex + 1}: ${group ?? '(undefined)'}`)
+						.join('\n');
+					return `Match ${index + 1}: "${match.match}"${groups ? `\n${groups}` : ''}`;
+				})
+				.join('\n\n') || 'No matches found.'
+		);
+	}, [result]);
 
-  const replacedText = useMemo(() => {
-    if (!result || "error" in result || !replace) return "";
-    try {
-      const f = flags.includes("g") ? flags : flags + "g";
-      return text.replace(new RegExp(pattern, f), replace);
-    } catch { return ""; }
-  }, [pattern, flags, text, replace, result]);
+	const replacedText = useMemo(() => {
+		if (!result || 'error' in result || !replacement) return '';
+		const globalFlags = flags.includes('g') ? flags : `${flags}g`;
+		return text.replace(new RegExp(pattern, globalFlags), replacement);
+	}, [pattern, flags, text, replacement, result]);
 
-  const matchCount = (!result || "error" in result) ? 0 : result.matches.length;
+	const matchCount = !result || 'error' in result ? 0 : result.matches.length;
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="card">
-        <div className="card-header">
-          <span className="card-title">Pattern</span>
-          {matchCount > 0 && (
-            <span className="badge badge-info">{matchCount} match{matchCount !== 1 ? "es" : ""}</span>
-          )}
-        </div>
-        <div className="card-body">
-          <div className="flex gap-12 mb-16 flex-wrap">
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <label className="form-label">Regular Expression</label>
-              <div className="flex gap-8 items-center">
-                <span className="text-muted" style={{ fontSize: 20 }}>/</span>
-                <input
-                  id="regex-pattern"
-                  type="text"
-                  className="form-input flex-1"
-                  value={pattern}
-                  onChange={(e) => setPattern(e.target.value)}
-                  placeholder="e.g. \b\w+@\w+\.\w+\b"
-                  spellCheck={false}
-                  autoComplete="off"
-                />
-                <span className="text-muted" style={{ fontSize: 20 }}>/</span>
-                <input
-                  id="regex-flags"
-                  type="text"
-                  className="form-input"
-                  style={{ width: 72 }}
-                  value={flags}
-                  onChange={(e) => setFlags(e.target.value.replace(/[^gimsuy]/g, ""))}
-                  placeholder="gim"
-                  maxLength={6}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="form-label">Replace with</label>
-              <input
-                id="regex-replace"
-                type="text"
-                className="form-input"
-                style={{ width: 180 }}
-                value={replace}
-                onChange={(e) => setReplace(e.target.value)}
-                placeholder="replacement"
-              />
-            </div>
-          </div>
+	return (
+		<div className="flex flex-col gap-4">
+			<ToolPanel
+				title="Pattern"
+				action={matchCount > 0 && <StatusBadge tone="info">{`${matchCount} match${matchCount !== 1 ? 'es' : ''}`}</StatusBadge>}
+				contentClassName="space-y-4"
+			>
+				<div className="flex flex-wrap gap-4">
+					<div className="w-full min-w-0 flex-1 space-y-2 sm:min-w-64">
+						<Label htmlFor="regex-pattern">Regular Expression</Label>
+						<div className="flex min-w-0 items-center gap-2">
+							<span className="text-xl text-muted-foreground">/</span>
+							<Input
+								id="regex-pattern"
+								className="min-w-0 flex-1 font-mono"
+								value={pattern}
+								onChange={(event) => setPattern(event.target.value)}
+								spellCheck={false}
+								autoComplete="off"
+							/>
+							<span className="text-xl text-muted-foreground">/</span>
+							<Input
+								id="regex-flags"
+								className="w-16 font-mono"
+								value={flags}
+								onChange={(event) => setFlags(event.target.value.replace(/[^gimsuy]/g, ''))}
+								maxLength={6}
+							/>
+						</div>
+					</div>
+					<div className="w-full space-y-2 sm:w-auto">
+						<Label htmlFor="regex-replace">Replace with</Label>
+						<Input
+							id="regex-replace"
+							value={replacement}
+							onChange={(event) => setReplacement(event.target.value)}
+							placeholder="replacement"
+						/>
+					</div>
+				</div>
+				<div className="flex flex-wrap gap-2">
+					{Object.entries(REGEX_SAMPLES).map(([name, sample]) => (
+						<Button
+							key={name}
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								setPattern(sample.pattern);
+								setFlags(sample.flags);
+							}}
+						>
+							{name}
+						</Button>
+					))}
+				</div>
+				<Label htmlFor="regex-input">Test String</Label>
+				<Textarea
+					id="regex-input"
+					className="min-h-28 font-mono text-sm"
+					value={text}
+					onChange={(event) => setText(event.target.value)}
+					spellCheck={false}
+				/>
+				{result && 'error' in result && <StatusBadge tone="error">{result.error}</StatusBadge>}
+			</ToolPanel>
 
-          <div className="flex gap-8 mb-12 flex-wrap">
-            {Object.entries(SAMPLES).map(([name, s]) => (
-              <button key={name} className="btn btn-ghost btn-sm"
-                onClick={() => { setPattern(s.pattern); setFlags(s.flags); }}>
-                {name}
-              </button>
-            ))}
-          </div>
+			<div className="grid gap-4 md:grid-cols-2">
+				<ToolPanel title="Highlighted Matches">
+					<div
+						className="min-h-40 whitespace-pre-wrap rounded-lg border border-input bg-muted p-3 font-mono text-sm"
+						dangerouslySetInnerHTML={{ __html: highlighted }}
+					/>
+				</ToolPanel>
+				<ToolPanel title="Match Groups" action={<CopyButton text={groupsText} label="Copy" />}>
+					<CodeOutput className="min-h-40">{groupsText}</CodeOutput>
+				</ToolPanel>
+			</div>
 
-          <label className="form-label">Test String</label>
-          <textarea
-            id="regex-input"
-            className="editor w-full"
-            style={{ minHeight: 100 }}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            spellCheck={false}
-          />
-
-          {result && "error" in result && (
-            <div className="badge badge-error mt-8">✗ {result.error}</div>
-          )}
-        </div>
-      </div>
-
-      <div className="split">
-        <div className="card">
-          <div className="card-header"><span className="card-title">Highlighted Matches</span></div>
-          <div className="card-body">
-            <div
-              id="regex-highlight"
-              className="output"
-              style={{ minHeight: 160, whiteSpace: "pre-wrap" }}
-              dangerouslySetInnerHTML={{ __html: highlighted }}
-            />
-          </div>
-        </div>
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Match Groups</span>
-            <CopyButton text={groupsText} label="Copy" />
-          </div>
-          <div className="card-body">
-            <pre id="regex-groups" className="output" style={{ minHeight: 160 }}>{groupsText}</pre>
-          </div>
-        </div>
-      </div>
-
-      {replacedText && (
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Replaced Output</span>
-            <CopyButton text={replacedText} label="Copy" />
-          </div>
-          <div className="card-body">
-            <pre id="regex-replaced" className="output" style={{ minHeight: 60 }}>{replacedText}</pre>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+			{replacedText && (
+				<ToolPanel title="Replaced Output" action={<CopyButton text={replacedText} label="Copy" />}>
+					<CodeOutput className="min-h-16">{replacedText}</CodeOutput>
+				</ToolPanel>
+			)}
+		</div>
+	);
 }
