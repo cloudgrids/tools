@@ -5,7 +5,8 @@ export function decodeJwt(token: string): JwtPayload | { error: string } {
 	if (parts.length !== 3) return { error: 'Invalid JWT: must have exactly 3 parts (header.payload.signature)' };
 
 	try {
-		const decode = (value: string) => JSON.parse(atob(value.replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
+		const decode = (value: string) =>
+			JSON.parse(Buffer.from(value.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')) as Record<string, unknown>;
 		return {
 			header: decode(parts[0]),
 			payload: decode(parts[1]),

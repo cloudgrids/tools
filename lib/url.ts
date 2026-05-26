@@ -1,4 +1,4 @@
-export function parseUrl(raw: string): Record<string, string> | null {
+export function parseUrl(raw: string): URL | null {
 	try {
 		const url = new URL(raw);
 		const params: Record<string, string> = {};
@@ -6,17 +6,7 @@ export function parseUrl(raw: string): Record<string, string> | null {
 			params[key] = value;
 		});
 
-		return {
-			protocol: url.protocol,
-			host: url.host,
-			hostname: url.hostname,
-			port: url.port || '(default)',
-			pathname: url.pathname,
-			search: url.search,
-			hash: url.hash || '(none)',
-			origin: url.origin,
-			...Object.fromEntries(Object.entries(params).map(([key, value]) => [`param:${key}`, value]))
-		};
+		return url;
 	} catch {
 		return null;
 	}

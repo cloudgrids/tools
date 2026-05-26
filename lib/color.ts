@@ -1,4 +1,3 @@
-// ── Color utilities ──────────────────────────────────────────
 import type { ContrastResult } from '@/lib/contracts';
 
 export function hexToRgb(hex: string): [number, number, number] {

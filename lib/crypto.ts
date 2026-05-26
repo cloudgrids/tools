@@ -1,4 +1,3 @@
-// ── WebCrypto helpers ─────────────────────────────────────────
 import type { HashResult } from '@/lib/contracts';
 
 const HASH_ALGORITHMS: { name: string; bits: number }[] = [

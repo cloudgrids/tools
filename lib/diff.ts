@@ -1,4 +1,3 @@
-// ── LCS-based diff algorithm ─────────────────────────────────
 import type { DiffLine } from '@/lib/contracts';
 
 function lcs(a: string[], b: string[]): number[][] {
