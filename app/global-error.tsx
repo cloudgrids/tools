@@ -4,8 +4,10 @@ import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertCircle, Home } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+	const router = useRouter();
 	return (
 		<html>
 			<body>
@@ -39,7 +41,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 							<Button
 								size="lg"
 								className="rounded-full font-black uppercase tracking-widest gap-2 shadow-lg shadow-primary/20"
-								onClick={() => (window.location.href = '/')}
+								onClick={() => router.push('/')}
 							>
 								<Home className="h-4 w-4" />
 								Return Home

@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 							<Sidebar />
 							<SidebarInset>
 								<TopBar />
-								{children}
+								<main className="h-full overflow-y-auto p-4">{children}</main>
 							</SidebarInset>
 						</SidebarProvider>
 					</TooltipProvider>

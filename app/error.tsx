@@ -4,9 +4,11 @@ import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+	const router = useRouter();
 	useEffect(() => {
 		// Log the error to an error reporting service
 		console.error('Application error:', error);
@@ -56,7 +58,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 						Try Again
 					</Button>
 					<Button
-						onClick={() => (window.location.href = '/dashboard')}
+						onClick={() => router.push('/')}
 						variant="outline"
 						size="lg"
 						className="rounded-full font-black uppercase tracking-widest gap-2"

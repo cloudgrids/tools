@@ -2,18 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CopyButton } from '@/components/ui/CopyButton';
 
 interface UrlBreakdownProps {
-	parsed: URL | null;
+	parsed: Record<string, string>;
 }
 
-export const UrlBreakdown: React.FC<UrlBreakdownProps> = ({ parsed }) => (
-	<Card>
-		<CardHeader>
-			<CardTitle>URL Breakdown</CardTitle>
-		</CardHeader>
-		<CardContent className="p-0">
-			<div className="divide-y divide-input border-t border-input">
-				{parsed &&
-					Object.entries(parsed).map(([key, val]) => (
+export const UrlBreakdown: React.FC<UrlBreakdownProps> = ({ parsed }) => {
+	return (
+		<Card>
+			<CardHeader>
+				<CardTitle>URL Breakdown</CardTitle>
+			</CardHeader>
+			<CardContent className="p-0">
+				<div className="divide-y divide-input border-t border-input">
+					{Object.entries(parsed).map(([key, val]) => (
 						<div
 							key={key}
 							className="flex flex-col items-start gap-2 px-4 py-2.5 transition-colors hover:bg-muted sm:flex-row sm:items-center sm:gap-4"
@@ -25,7 +25,8 @@ export const UrlBreakdown: React.FC<UrlBreakdownProps> = ({ parsed }) => (
 							<CopyButton text={val} label="Copy" />
 						</div>
 					))}
-			</div>
-		</CardContent>
-	</Card>
-);
+				</div>
+			</CardContent>
+		</Card>
+	);
+};
