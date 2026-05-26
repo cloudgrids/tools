@@ -11,20 +11,24 @@ export function Logo({ className, ...props }: React.ComponentProps<"svg">) {
     >
       <path
         d="M16 2L2 9v14l14 7 14-7V9L16 2Z"
-        fill="url(#logo-grad-1)"
-        fillOpacity="0.1"
-        stroke="url(#logo-grad-1)"
+        fill="none"
+        stroke="#3B82F6"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M16 13l-5 2.5v5L16 23l5-2.5v-5L16 13Z"
-        fill="url(#logo-grad-2)"
+        fill="none"
+        stroke="#3B82F6"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M16 2v11M2 9l14 7M30 9l-14 7"
-        stroke="url(#logo-grad-1)"
+        fill="none"
+        stroke="#3B82F6"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

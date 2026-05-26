@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Tools](https://media.cloudgrids.tech/apple-icon-180.png)]()
+[![Tools](https://media.cloudgrids.tech/tools/logo.svg)]()
 
 <h1> Tools</h1>
 
