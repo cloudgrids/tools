@@ -129,14 +129,14 @@
 		@apply font-sans;
 	}
 
-	/* Bold, italic, uppercase typography inspired by PicturesView */
+	/* Bold typography for headings */
 	h1,
 	h2,
 	h3,
 	h4,
 	h5,
 	h6 {
-		@apply font-black italic uppercase tracking-tight;
+		@apply font-bold tracking-tight;
 	}
 
 	/* Subtle uppercase for smaller text elements */

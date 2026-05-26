@@ -1,6 +1,6 @@
 'use client';
 
-import { ToolIcon } from '@/components/tools/shared/ToolIcon';
+import { ToolIcon } from '@/components/ToolIcon';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
 	SidebarContent,
@@ -44,7 +44,7 @@ export function Sidebar() {
 			<SidebarHeader>
 				<div className="flex items-center gap-3 px-1">
 					<Avatar>
-						<AvatarFallback>DK</AvatarFallback>
+						<AvatarFallback>T</AvatarFallback>
 					</Avatar>
 					<div className="min-w-0">
 						<div className="truncate text-sm font-semibold">tools</div>
@@ -81,11 +81,11 @@ export function Sidebar() {
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{filtered.map((tool) => {
-								const isActive = pathname === `/tools/${tool.id}`;
+								const isActive = pathname === `/${tool.id}`;
 								return (
 									<SidebarMenuItem key={tool.id}>
 										<SidebarMenuButton
-											render={<Link href={`/tools/${tool.id}`} />}
+											render={<Link href={`/${tool.id}`} />}
 											isActive={isActive}
 											tooltip={tool.name}
 										>

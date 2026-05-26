@@ -1,12 +1,13 @@
 'use client';
 
-import { ToolIcon } from '@/components/tools/shared/ToolIcon';
+import { ToolIcon } from '@/components/ToolIcon';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { TOOL_MAP } from '@/lib/tools';
-import { Star, Wrench } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { GithubStar } from '../GithubStar';
+import { ThemeToggle } from './ThemeToggle';
 
 export function TopBar() {
 	const pathname = usePathname();
@@ -14,11 +15,11 @@ export function TopBar() {
 	const tool = toolId ? TOOL_MAP.get(toolId) : null;
 
 	return (
-		<header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur supports-backdrop-filter:bg-white/70 md:px-6">
+		<header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md supports-backdrop-filter:bg-background/60 md:px-6">
 			<div className="flex min-w-0 items-center gap-3">
 				<SidebarTrigger className="lg:hidden" />
 
-				<span className="hidden h-5 w-px bg-slate-200 lg:block" aria-hidden="true" />
+				<span className="hidden h-5 w-px bg-border lg:block" aria-hidden="true" />
 
 				<Avatar size="sm">
 					<AvatarFallback>
@@ -27,22 +28,14 @@ export function TopBar() {
 				</Avatar>
 
 				<div className="min-w-0">
-					<div className="truncate text-sm font-semibold text-slate-900">{tool ? tool.name : 'tools'}</div>
-					{tool && <div className="hidden truncate text-xs text-slate-500 md:block">{tool.desc}</div>}
+					<div className="truncate text-sm font-semibold text-foreground">{tool ? tool.name : 'tools'}</div>
+					{tool && <div className="hidden truncate text-xs text-muted-foreground md:block">{tool.desc}</div>}
 				</div>
 			</div>
 
-			<div className="flex items-center gap-2">
-				<Button
-					variant="outline"
-					size="sm"
-					nativeButton={false}
-					render={<a href="https://github.com/cloudgrids/tools" target="_blank" rel="noopener noreferrer" />}
-					aria-label="Star tools on GitHub"
-				>
-					<Star aria-hidden="true" />
-					<span>GitHub</span>
-				</Button>
+			<div className="flex items-center gap-3">
+				<ThemeToggle />
+				<GithubStar />
 			</div>
 		</header>
 	);
