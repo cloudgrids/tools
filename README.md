@@ -13,7 +13,7 @@
 
 <br/>
 
-> 12 essential developer utilities in one gorgeous dark-mode web app.
+> 12 essential developer utilities.
 > Zero installs. Zero backend. Works completely offline.
 
 </div>
