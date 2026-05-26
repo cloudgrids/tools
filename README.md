@@ -1,5 +1,7 @@
 <div align="center">
 
+[![Tools](https://media.cloudgrids.tech/apple-icon-180.png)]()
+
 <h1> Tools</h1>
 
 <p><strong>The all-in-one developer toolkit. Beautiful, offline-first, open source.</strong></p>
@@ -20,20 +22,20 @@
 
 ## Features
 
-| Tool                        | Description                                        |
-| --------------------------- | -------------------------------------------------- |
-|  **JSON Formatter**       | Format, validate & minify JSON with live status    |
-|  **Regex Tester**         | Live match highlighting, group extraction, replace |
-|  **Color Converter**      | HEX/RGB/HSL + palette generator + WCAG contrast    |
-|  **Markdown Preview**     | Live split-pane editor with instant rendering      |
-|  **CSS Gradient Builder** | Visual gradient creator with CSS output & gallery  |
-|  **Base64 Codec**         | Encode/decode text + drag-and-drop file support    |
-|  **Hash Generator**       | SHA-1, SHA-256, SHA-384, SHA-512 via WebCrypto     |
-|  **UUID Generator**       | Bulk UUID v4 with uppercase/no-dash options        |
-|  **Password Generator**   | Configurable with live strength meter              |
-|  **Text Diff Viewer**     | LCS-based side-by-side diff with stats             |
-|  **URL Encoder**          | Encode, decode & fully parse URLs                  |
-|  **JWT Decoder**          | Inspect header, payload, expiry & algorithm        |
+| Tool                     | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| **JSON Formatter**       | Format, validate & minify JSON with live status    |
+| **Regex Tester**         | Live match highlighting, group extraction, replace |
+| **Color Converter**      | HEX/RGB/HSL + palette generator + WCAG contrast    |
+| **Markdown Preview**     | Live split-pane editor with instant rendering      |
+| **CSS Gradient Builder** | Visual gradient creator with CSS output & gallery  |
+| **Base64 Codec**         | Encode/decode text + drag-and-drop file support    |
+| **Hash Generator**       | SHA-1, SHA-256, SHA-384, SHA-512 via WebCrypto     |
+| **UUID Generator**       | Bulk UUID v4 with uppercase/no-dash options        |
+| **Password Generator**   | Configurable with live strength meter              |
+| **Text Diff Viewer**     | LCS-based side-by-side diff with stats             |
+| **URL Encoder**          | Encode, decode & fully parse URLs                  |
+| **JWT Decoder**          | Inspect header, payload, expiry & algorithm        |
 
 ---
 
@@ -53,62 +55,9 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) and you're done. No environment variables. No API keys. No config.
 
----
-
-## Tech Stack
-
-- **[Next.js 16](https://nextjs.org)** — App Router, Server Components, static export ready
-- **[TypeScript 5.9](https://typescriptlang.org)** — Strict mode, full type safety
-- **Vanilla CSS** — Custom aurora dark design system, no Tailwind, no CSS-in-JS
-- **Browser APIs only** — WebCrypto, Clipboard, FileReader, URL — zero runtime dependencies
-
----
-
-## Project Structure
-
-```
-├── app/
-│   ├── layout.tsx              # Root layout (Sidebar + TopBar)
-│   ├── page.tsx                # Home — tool grid
-│   ├── globals.css             # Full design system
-│   └── tools/[tool]/page.tsx  # Dynamic tool pages
-├── components/
-│   ├── layout/Sidebar.tsx      # Searchable sidebar (client)
-│   ├── layout/TopBar.tsx       # Context-aware TopBar (client)
-│   ├── ui/ToastProvider.tsx    # Global toast context
-│   ├── ui/CopyButton.tsx       # Reusable copy with feedback
-│   └── tools/                  # 12 tool components ('use client')
-├── lib/
-│   ├── tools.ts                # Tool registry
-│   ├── crypto.ts               # WebCrypto helpers
-│   ├── color.ts                # Color conversion utilities
-│   ├── diff.ts                 # LCS diff algorithm
-│   └── markdown.ts             # Zero-dep markdown parser
-└── types/index.ts              # Shared TypeScript types
-```
-
----
-
 ## Contributing
 
 Contributions are what make open source amazing. Any contribution you make is **greatly appreciated**.
-
-### Adding a New Tool
-
-1. Add your tool to `lib/tools.ts`
-2. Create `components/tools/YourTool.tsx` (use `'use client'`)
-3. Import and register it in `app/tools/[tool]/page.tsx`
-4. That's it! Submit a PR
-
-### Development
-
-```bash
-pnpm dev          # Start dev server
-pnpm build        # Production build
-pnpm exec tsc --noEmit  # Type check
-```
-
----
 
 ## License
 
