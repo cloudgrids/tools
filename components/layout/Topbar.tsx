@@ -37,7 +37,7 @@ export function TopBar() {
 					variant="outline"
 					size="sm"
 					nativeButton={false}
-					render={<a href="https://github.com/devkit-pro/devkit-pro" target="_blank" rel="noopener noreferrer" />}
+					render={<a href="https://github.com/cloudgrids/tools" target="_blank" rel="noopener noreferrer" />}
 					aria-label="Star tools on GitHub"
 				>
 					<Star aria-hidden="true" />

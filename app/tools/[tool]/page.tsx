@@ -14,7 +14,6 @@ import { TOOLS, getTool } from '@/lib/tools';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-// Next.js 16: params is a Promise
 interface Props {
 	params: Promise<{ tool: string }>;
 }

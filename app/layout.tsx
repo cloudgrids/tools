@@ -1,5 +1,5 @@
 import { Sidebar } from '@/components/layout/Sidebar';
-import { TopBar } from '@/components/layout/TopBar';
+import { TopBar } from '@/components/layout/Topbar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 	title: { default: 'Tools', template: '%s · Tools' },
 	description:
 		'12 beautiful developer utilities in one app — JSON formatter, regex tester, color converter, CSS gradients, hash generator and more. Zero installs, 100% offline.',
-	keywords: ['developer tools', 'devkit', 'json formatter', 'regex tester', 'base64', 'hash generator', 'open source'],
+	keywords: ['developer tools', 'devkit', 'tools', 'json formatter', 'regex tester', 'base64', 'hash generator', 'open source'],
 	openGraph: {
 		title: 'Tools',
 		description: 'All-in-one developer toolkit. Beautiful, offline-first, open source.',

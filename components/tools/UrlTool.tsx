@@ -8,7 +8,7 @@ import { parseUrl } from '@/lib/url';
 import { useMemo, useState } from 'react';
 
 export function UrlTool() {
-	const [input, setInput] = useState('https://devkit.pro/tools/url?query=hello+world&page=1&debug=true#section');
+	const [input, setInput] = useState('https://tools.cloudgrids.tech/url?query=hello+world&page=1&debug=true#section');
 	const [encoded, setEncoded] = useState('');
 	const [decoded, setDecoded] = useState('');
 

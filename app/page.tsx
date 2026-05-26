@@ -52,7 +52,7 @@ export default function HomePage() {
 							variant="outline"
 							size="sm"
 							nativeButton={false}
-							render={<a href="https://github.com/cloudgrids/devkit-pro" target="_blank" rel="noopener noreferrer" />}
+							render={<a href="https://github.com/cloudgrids/tools" target="_blank" rel="noopener noreferrer" />}
 						>
 							<Star data-icon="inline-start" />
 							Star on GitHub

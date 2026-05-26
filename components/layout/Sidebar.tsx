@@ -105,7 +105,7 @@ export function Sidebar() {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
-							render={<a href="https://github.com/devkit-pro/devkit-pro" target="_blank" rel="noopener noreferrer" />}
+							render={<a href="https://github.com/cloudgrids/tools" target="_blank" rel="noopener noreferrer" />}
 						>
 							<Star aria-hidden="true" />
 							<span>Star on GitHub</span>

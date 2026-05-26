@@ -5,7 +5,7 @@ export const JSON_SAMPLE = JSON.stringify(
 		name: 'tools',
 		version: '1.0.0',
 		tools: ['json', 'regex', 'color', 'markdown'],
-		author: { name: 'Open Source Community', github: 'devkit-pro' },
+		author: { name: 'Open Source Community', github: 'tools' },
 		active: true,
 		stars: 9999,
 		config: { theme: 'aurora-dark', offline: true }
@@ -64,7 +64,7 @@ const result = greet("tools");
 console.log(result);`;
 
 export const REGEX_DEFAULT_TEXT =
-	'The quick brown fox jumps over the lazy dog.\nContact: hello@example.com or admin@devkit.io\nVisit https://devkit.pro for more info.';
+	'The quick brown fox jumps over the lazy dog.\nContact: hello@example.com or admin@tools.tech\nVisit https://tools.cloudgrids.tech for more info.';
 
 export const REGEX_SAMPLES: Record<string, RegexSample> = {
 	'Email': { pattern: '[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}', flags: 'g' },
