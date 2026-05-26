@@ -6,7 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { TOOL_MAP } from '@/lib/tools';
 import { Wrench } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { GithubStar } from '../GithubStar';
+import { GithubStar } from './GithubStar';
 import { ThemeToggle } from './ThemeToggle';
 
 export function TopBar() {

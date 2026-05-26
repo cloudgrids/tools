@@ -1,5 +1,5 @@
-import { Sidebar } from '@/components/layout/Sidebar';
-import { TopBar } from '@/components/layout/Topbar';
+import { Sidebar } from '@/components/Sidebar';
+import { TopBar } from '@/components/TopBar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
