@@ -1,10 +1,11 @@
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopBar } from '@/components/layout/Topbar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { ToastProvider } from '@/components/ui/ToastProvider';
+import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
+import { ThemeProvider } from 'next-themes';
 import { Geist } from 'next/font/google';
 import './globals.css';
 
@@ -24,10 +25,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" data-scroll-behavior="smooth" className={cn('font-sans', geist.variable)}>
+		<html lang="en" data-scroll-behavior="smooth" className={cn('font-sans', geist.variable)} suppressHydrationWarning>
 			<body>
-				<TooltipProvider>
-					<ToastProvider>
+				<Toaster position="top-center" richColors />
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<TooltipProvider>
 						<SidebarProvider defaultOpen>
 							<Sidebar />
 							<SidebarInset>
@@ -35,8 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 								{children}
 							</SidebarInset>
 						</SidebarProvider>
-					</ToastProvider>
-				</TooltipProvider>
+					</TooltipProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	);
