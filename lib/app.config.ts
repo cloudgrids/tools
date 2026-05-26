@@ -35,11 +35,13 @@ export const AppConfig = {
 		favicon: 'https://tools.cloudgrids.tech/favicon.ico'
 	},
 	manifest: '/site.webmanifest',
-	icons: [
-		{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-		{ src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-		{ src: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' }
-	],
+	icons: {
+		icon: [
+			{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+			{ src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+			{ src: '/icons/icon-180.png', sizes: '180x180', type: 'image/png' }
+		]
+	},
 	contact: {
 		email: 'support-tools@cloudgrids.tech'
 	}

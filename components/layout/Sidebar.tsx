@@ -47,7 +47,7 @@ export function Sidebar() {
 						<AvatarFallback>T</AvatarFallback>
 					</Avatar>
 					<div className="min-w-0">
-						<div className="truncate text-sm font-semibold">tools</div>
+						<div className="truncate text-sm font-semibold">Tools</div>
 						<div className="truncate text-xs text-muted-foreground">Developer Toolkit</div>
 					</div>
 				</div>

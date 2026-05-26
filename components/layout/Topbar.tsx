@@ -28,7 +28,7 @@ export function TopBar() {
 				</Avatar>
 
 				<div className="min-w-0">
-					<div className="truncate text-sm font-semibold text-foreground">{tool ? tool.name : 'tools'}</div>
+					<div className="truncate text-sm font-semibold text-foreground">{tool ? tool.name : 'Tools'}</div>
 					{tool && <div className="hidden truncate text-xs text-muted-foreground md:block">{tool.desc}</div>}
 				</div>
 			</div>
