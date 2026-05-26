@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>🛠️ DevKit Pro</h1>
+<h1>🛠️ Tools</h1>
 
 <p><strong>The all-in-one developer toolkit. Beautiful, offline-first, open source.</strong></p>
 
@@ -20,20 +20,20 @@
 
 ## ✨ Features
 
-| Tool | Description |
-|------|-------------|
-| 🧩 **JSON Formatter** | Format, validate & minify JSON with live status |
-| 🔍 **Regex Tester** | Live match highlighting, group extraction, replace |
-| 🎨 **Color Converter** | HEX/RGB/HSL + palette generator + WCAG contrast |
-| 📝 **Markdown Preview** | Live split-pane editor with instant rendering |
-| 🌈 **CSS Gradient Builder** | Visual gradient creator with CSS output & gallery |
-| 🔐 **Base64 Codec** | Encode/decode text + drag-and-drop file support |
-| 🔑 **Hash Generator** | SHA-1, SHA-256, SHA-384, SHA-512 via WebCrypto |
-| 🆔 **UUID Generator** | Bulk UUID v4 with uppercase/no-dash options |
-| 🛡️ **Password Generator** | Configurable with live strength meter |
-| ↔️ **Text Diff Viewer** | LCS-based side-by-side diff with stats |
-| 🔗 **URL Encoder** | Encode, decode & fully parse URLs |
-| 🪙 **JWT Decoder** | Inspect header, payload, expiry & algorithm |
+| Tool                        | Description                                        |
+| --------------------------- | -------------------------------------------------- |
+| 🧩 **JSON Formatter**       | Format, validate & minify JSON with live status    |
+| 🔍 **Regex Tester**         | Live match highlighting, group extraction, replace |
+| 🎨 **Color Converter**      | HEX/RGB/HSL + palette generator + WCAG contrast    |
+| 📝 **Markdown Preview**     | Live split-pane editor with instant rendering      |
+| 🌈 **CSS Gradient Builder** | Visual gradient creator with CSS output & gallery  |
+| 🔐 **Base64 Codec**         | Encode/decode text + drag-and-drop file support    |
+| 🔑 **Hash Generator**       | SHA-1, SHA-256, SHA-384, SHA-512 via WebCrypto     |
+| 🆔 **UUID Generator**       | Bulk UUID v4 with uppercase/no-dash options        |
+| 🛡️ **Password Generator**   | Configurable with live strength meter              |
+| ↔️ **Text Diff Viewer**     | LCS-based side-by-side diff with stats             |
+| 🔗 **URL Encoder**          | Encode, decode & fully parse URLs                  |
+| 🪙 **JWT Decoder**          | Inspect header, payload, expiry & algorithm        |
 
 ---
 
@@ -68,13 +68,13 @@ Open [http://localhost:3000](http://localhost:3000) and you're done. No environm
 
 ```
 ├── app/
-│   ├── layout.tsx              # Root layout (Sidebar + Topbar)
+│   ├── layout.tsx              # Root layout (Sidebar + TopBar)
 │   ├── page.tsx                # Home — tool grid
 │   ├── globals.css             # Full design system
 │   └── tools/[tool]/page.tsx  # Dynamic tool pages
 ├── components/
 │   ├── layout/Sidebar.tsx      # Searchable sidebar (client)
-│   ├── layout/Topbar.tsx       # Context-aware topbar (client)
+│   ├── layout/TopBar.tsx       # Context-aware TopBar (client)
 │   ├── ui/ToastProvider.tsx    # Global toast context
 │   ├── ui/CopyButton.tsx       # Reusable copy with feedback
 │   └── tools/                  # 12 tool components ('use client')
@@ -112,7 +112,7 @@ pnpm exec tsc --noEmit  # Type check
 
 ## 📄 License
 
-MIT © [DevKit Pro Contributors](LICENSE)
+MIT © [tools Contributors](LICENSE)
 
 ---
 

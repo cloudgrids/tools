@@ -1,70 +1,136 @@
-// ── Markdown parser (zero deps) ───────────────────────────────
-function escHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function escapeHtml(value: string): string {
+	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export function parseMarkdown(md: string): string {
-  // Protect code blocks
-  const codeBlocks: string[] = [];
-  let html = md.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) => {
-    const idx = codeBlocks.length;
-    codeBlocks.push(`<pre><code>${escHtml(code.trimEnd())}</code></pre>`);
-    return `%%CODE_BLOCK_${idx}%%`;
-  });
+function safeHref(value: string): string {
+	const href = value.trim();
+	if (/^(https?:|mailto:|\/|#)/i.test(href)) return escapeHtml(href);
+	return '#';
+}
 
-  html = html
-    // Inline code
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    // Headers
-    .replace(/^######\s(.+)$/gm, "<h6>$1</h6>")
-    .replace(/^#####\s(.+)$/gm,  "<h5>$1</h5>")
-    .replace(/^####\s(.+)$/gm,   "<h4>$1</h4>")
-    .replace(/^###\s(.+)$/gm,    "<h3>$1</h3>")
-    .replace(/^##\s(.+)$/gm,     "<h2>$1</h2>")
-    .replace(/^#\s(.+)$/gm,      "<h1>$1</h1>")
-    // Bold + italic
-    .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-    .replace(/\*\*(.+?)\*\*/g,     "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g,         "<em>$1</em>")
-    .replace(/__(.+?)__/g,         "<strong>$1</strong>")
-    .replace(/_(.+?)_/g,           "<em>$1</em>")
-    // Strikethrough
-    .replace(/~~(.+?)~~/g, "<del>$1</del>")
-    // Blockquote
-    .replace(/^>\s(.+)$/gm, "<blockquote>$1</blockquote>")
-    // HR
-    .replace(/^---+$/gm, "<hr />")
-    // Image before links
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%" />')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    // Lists
-    .replace(/^[\*\-]\s(.+)$/gm, "<li>$1</li>")
-    .replace(/^\d+\.\s(.+)$/gm,  "<li>$1</li>")
-    // Group <li>s into <ul>
-    .replace(/((?:<li>[\s\S]*?<\/li>\n?)+)/g, "<ul>$1</ul>")
-    // Paragraphs
-    .replace(/\n\n+/g, "</p><p>")
-    .replace(/\n/g, "<br />");
+function parseInline(value: string): string {
+	const snippets: string[] = [];
+	const protect = (snippet: string) => {
+		const index = snippets.length;
+		snippets.push(snippet);
+		return `\u0000${index}\u0000`;
+	};
 
-  html = `<p>${html}</p>`;
+	let html = value
+		.replace(/`([^`\n]+)`/g, (_, code: string) => protect(`<code>${escapeHtml(code)}</code>`))
+		.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt: string, src: string) => {
+			return protect(`<img src="${safeHref(src)}" alt="${escapeHtml(alt)}" />`);
+		})
+		.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text: string, href: string) => {
+			return protect(`<a href="${safeHref(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(text)}</a>`);
+		})
+		.replace(/[&<>"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[character] ?? character)
+		.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+		.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+		.replace(/\*(.+?)\*/g, '<em>$1</em>')
+		.replace(/__(.+?)__/g, '<strong>$1</strong>')
+		.replace(/_(.+?)_/g, '<em>$1</em>')
+		.replace(/~~(.+?)~~/g, '<del>$1</del>');
 
-  // Restore code blocks
-  codeBlocks.forEach((block, idx) => {
-    html = html.replace(`%%CODE_BLOCK_${idx}%%`, block);
-  });
+	snippets.forEach((snippet, index) => {
+		html = html.replace(`\u0000${index}\u0000`, snippet);
+	});
 
-  return html;
+	return html;
+}
+
+function isBlockStart(line: string): boolean {
+	return (
+		/^```/.test(line) ||
+		/^#{1,6}\s/.test(line) ||
+		/^>\s?/.test(line) ||
+		/^([-*_])\1{2,}\s*$/.test(line) ||
+		/^[-*]\s/.test(line) ||
+		/^\d+\.\s/.test(line)
+	);
+}
+
+export function parseMarkdown(markdown: string): string {
+	const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+	const blocks: string[] = [];
+	let index = 0;
+
+	while (index < lines.length) {
+		const line = lines[index];
+
+		if (!line.trim()) {
+			index++;
+			continue;
+		}
+
+		const fence = line.match(/^```([\w-]*)\s*$/);
+		if (fence) {
+			const language = fence[1];
+			const code: string[] = [];
+			index++;
+			while (index < lines.length && !/^```\s*$/.test(lines[index])) {
+				code.push(lines[index]);
+				index++;
+			}
+			if (index < lines.length) index++;
+			const className = language ? ` class="language-${escapeHtml(language)}"` : '';
+			blocks.push(`<pre><code${className}>${escapeHtml(code.join('\n'))}</code></pre>`);
+			continue;
+		}
+
+		const heading = line.match(/^(#{1,6})\s(.+)$/);
+		if (heading) {
+			const level = heading[1].length;
+			blocks.push(`<h${level}>${parseInline(heading[2])}</h${level}>`);
+			index++;
+			continue;
+		}
+
+		if (/^([-*_])\1{2,}\s*$/.test(line)) {
+			blocks.push('<hr />');
+			index++;
+			continue;
+		}
+
+		if (/^>\s?/.test(line)) {
+			const quote: string[] = [];
+			while (index < lines.length && /^>\s?/.test(lines[index])) {
+				quote.push(parseInline(lines[index].replace(/^>\s?/, '')));
+				index++;
+			}
+			blocks.push(`<blockquote>${quote.join('<br />')}</blockquote>`);
+			continue;
+		}
+
+		const listType = /^[-*]\s/.test(line) ? 'ul' : /^\d+\.\s/.test(line) ? 'ol' : null;
+		if (listType) {
+			const items: string[] = [];
+			const pattern = listType === 'ul' ? /^[-*]\s(.+)$/ : /^\d+\.\s(.+)$/;
+			while (index < lines.length) {
+				const item = lines[index].match(pattern);
+				if (!item) break;
+				items.push(`<li>${parseInline(item[1])}</li>`);
+				index++;
+			}
+			blocks.push(`<${listType}>${items.join('')}</${listType}>`);
+			continue;
+		}
+
+		const paragraph: string[] = [];
+		while (index < lines.length && lines[index].trim() && !isBlockStart(lines[index])) {
+			paragraph.push(parseInline(lines[index]));
+			index++;
+		}
+		blocks.push(`<p>${paragraph.join('<br />')}</p>`);
+	}
+
+	return blocks.join('');
 }
 
 export function wordCount(text: string): { words: number; chars: number; lines: number } {
-  return {
-    words: text.trim() ? text.trim().split(/\s+/).length : 0,
-    chars: text.length,
-    lines: text.split("\n").length,
-  };
+	return {
+		words: text.trim() ? text.trim().split(/\s+/).length : 0,
+		chars: text.length,
+		lines: text.split('\n').length
+	};
 }
