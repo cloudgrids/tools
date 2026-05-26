@@ -4,7 +4,7 @@
 
 <h1> Tools</h1>
 
-<p><strong>The all-in-one developer toolkit. Beautiful, offline-first, open source.</strong></p>
+<p><strong>The all-in-one developer toolkit - offline-first, open source.</strong></p>
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
