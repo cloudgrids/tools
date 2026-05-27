@@ -1,3 +1,3 @@
-# Contributing to [Tools](https://tools.cloudgrids.dev)
+# Contributing to Tools
 
-Thank you for your interest in contributing to [Tools!](https://tools.cloudgrids.tech) This document provides guidelines and instruction for contributing.
+Thank you for your interest in contributing to Tools! This document provides guidelines and instruction for contributing.
