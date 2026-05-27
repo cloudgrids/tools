@@ -12,13 +12,15 @@ export interface JsonState {
 	stats: string;
 }
 
+const emptyState: JsonState = {
+	input: JSON_SAMPLE,
+	output: '',
+	status: null,
+	stats: ''
+};
+
 export const Json = () => {
-	const [state, setState] = useState<JsonState>({
-		input: JSON_SAMPLE,
-		output: '',
-		status: null,
-		stats: ''
-	});
+	const [state, setState] = useState<JsonState>(emptyState);
 
 	const format = useCallback(
 		(indent: number) => {

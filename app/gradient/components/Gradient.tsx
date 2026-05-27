@@ -15,12 +15,14 @@ export interface GradientState {
 	stops: ColorStop[];
 }
 
+const emptyState: GradientState = {
+	type: 'linear',
+	angle: 135,
+	stops: GRADIENT_PRESETS[0].stops.map((stop) => ({ ...stop }))
+};
+
 export const Gradient = () => {
-	const [state, setState] = useState<GradientState>({
-		type: 'linear',
-		angle: 135,
-		stops: GRADIENT_PRESETS[0].stops.map((stop) => ({ ...stop }))
-	});
+	const [state, setState] = useState<GradientState>(emptyState);
 
 	const css = buildGradientCss(state.type, state.angle, state.stops);
 

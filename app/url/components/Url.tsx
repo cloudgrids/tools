@@ -12,12 +12,14 @@ export interface UrlState {
 	decoded: string;
 }
 
+const emptyState: UrlState = {
+	input: 'https://tools.cloudgrids.tech/url?query=hello+world&page=1&debug=true#section',
+	encoded: '',
+	decoded: ''
+};
+
 export const Url = () => {
-	const [state, setState] = useState<UrlState>({
-		input: 'https://tools.cloudgrids.tech/url?query=hello+world&page=1&debug=true#section',
-		encoded: '',
-		decoded: ''
-	});
+	const [state, setState] = useState<UrlState>(emptyState);
 
 	const parsed = useMemo(() => parseUrl(state.input), [state.input]);
 

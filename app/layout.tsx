@@ -1,3 +1,5 @@
+import { CookieConsent } from '@/components/CookieConsent';
+import { Footer } from '@/components/Footer';
 import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -68,7 +70,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 							<Sidebar />
 							<SidebarInset>
 								<TopBar />
-								<main className="h-full overflow-y-auto p-4">{children}</main>
+								<main className="flex flex-col h-full overflow-y-auto p-4">
+									<div className="flex-1">{children}</div>
+									<Footer />
+									<CookieConsent />
+								</main>
 							</SidebarInset>
 						</SidebarProvider>
 					</TooltipProvider>

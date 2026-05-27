@@ -29,8 +29,8 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 
 						{/* Title */}
 						<div className="space-y-3">
-							<h1 className="text-3xl sm:text-4xl md:text-5xl">System Maintenance</h1>
-							<p className="text-sm sm:text-base text-muted-foreground font-medium max-w-md mx-auto">
+							<h1 className="text-3xl sm:text-4xl md:text-5xl">SYSTEM MAINTENANCE</h1>
+							<p className="text-sm uppercase font-bold text-muted-foreground max-w-md mx-auto">
 								We&rsquo;re currently performing essential maintenance. We&rsquo;ll be back online shortly. Thank you for
 								your patience.
 							</p>
@@ -51,7 +51,8 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 						{/* Support Info */}
 						<div className="pt-8 border-t border-border/50">
 							<p className="text-xs text-muted-foreground/60 font-medium">
-								Need immediate assistance? Contact <a href="mailto:[EMAIL_ADDRESS]">[EMAIL_ADDRESS]</a>
+								Need immediate assistance? Email us at{' '}
+								<a href="mailto:[support-tools@cloudgrids.tech]">[EMAIL_ADDRESS]</a>
 							</p>
 						</div>
 					</Card>

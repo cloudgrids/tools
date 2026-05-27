@@ -18,15 +18,17 @@ export interface HashState {
 	fileResults: HashResult[];
 }
 
+const emptyState: HashState = {
+	input: HASH_DEFAULT_TEXT,
+	loading: true,
+	results: [],
+	fileName: '',
+	fileSize: '',
+	fileResults: []
+};
+
 export const Hash = () => {
-	const [state, setState] = useState<HashState>({
-		input: HASH_DEFAULT_TEXT,
-		loading: true,
-		results: [],
-		fileName: '',
-		fileSize: '',
-		fileResults: []
-	});
+	const [state, setState] = useState<HashState>(emptyState);
 
 	async function run(text: string) {
 		if (!text.trim()) return;
@@ -40,7 +42,9 @@ export const Hash = () => {
 		void hashText(HASH_DEFAULT_TEXT).then((results) => {
 			if (mounted) setState((prev) => ({ ...prev, results, loading: false }));
 		});
-		return () => { mounted = false; };
+		return () => {
+			mounted = false;
+		};
 	}, []);
 
 	async function handleFile(file: File) {

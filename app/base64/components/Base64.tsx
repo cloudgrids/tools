@@ -19,17 +19,19 @@ export interface Base64State {
 	fileB64: string;
 }
 
+const emptyState: Base64State = {
+	tab: 'text',
+	input: '',
+	output: '',
+	stats: '',
+	fileName: '',
+	fileSize: '',
+	dataUrl: '',
+	fileB64: ''
+};
+
 export const Base64 = () => {
-	const [state, setState] = useState<Base64State>({
-		tab: 'text',
-		input: '',
-		output: '',
-		stats: '',
-		fileName: '',
-		fileSize: '',
-		dataUrl: '',
-		fileB64: ''
-	});
+	const [state, setState] = useState<Base64State>(emptyState);
 
 	return (
 		<div className="flex flex-col gap-4">
