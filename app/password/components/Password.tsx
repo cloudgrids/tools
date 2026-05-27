@@ -19,13 +19,15 @@ export interface PasswordState {
 	passwords: string[];
 }
 
+const emptyState: PasswordState = {
+	length: 20,
+	count: 5,
+	options: { upper: true, lower: true, digits: true, symbols: true },
+	passwords: Array.from({ length: 5 }, () => generatePassword(20, { upper: true, lower: true, digits: true, symbols: true }))
+};
+
 export const Password = () => {
-	const [state, setState] = useState<PasswordState>({
-		length: 20,
-		count: 5,
-		options: { upper: true, lower: true, digits: true, symbols: true },
-		passwords: Array.from({ length: 5 }, () => generatePassword(20, { upper: true, lower: true, digits: true, symbols: true }))
-	});
+	const [state, setState] = useState<PasswordState>(emptyState);
 
 	const previewStrength = useMemo(() => passwordStrength(state.passwords[0] ?? ''), [state.passwords]);
 

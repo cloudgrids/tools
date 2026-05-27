@@ -6,13 +6,6 @@
 
 <p><strong>The all-in-one developer toolkit - offline-first, open source.</strong></p>
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
-
-<br/>
-
 > 12 essential developer utilities.
 > Zero installs. Zero backend. Works completely offline.
 
@@ -37,23 +30,6 @@
 | **URL Encoder**          | Encode, decode & fully parse URLs                  |
 | **JWT Decoder**          | Inspect header, payload, expiry & algorithm        |
 
----
-
-## Quick Start
-
-```bash
-# Clone
-git clone https://github.com/cloudgrids/tools.git
-cd tools
-
-# Install (uses pnpm)
-pnpm install
-
-# Run locally
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) and you're done. No environment variables. No API keys. No config.
 
 ## Contributing
 
@@ -61,10 +37,10 @@ Contributions are what make open source amazing. Any contribution you make is **
 
 ## License
 
-MIT © [tools Contributors](LICENSE)
+MIT © [Tools Contributors](LICENSE)
 
 ---
 
 <div align="center">
-<p>If this project helped you, please consider giving it a ⭐ on GitHub!</p>
+<p>If this project helped you, consider giving it a ⭐ on GitHub!</p>
 </div>

@@ -12,13 +12,15 @@ export interface UuidState {
 	uuids: string[];
 }
 
+const emptyState: UuidState = {
+	count: 10,
+	upper: false,
+	noDash: false,
+	uuids: Array.from({ length: 10 }, generateUUID)
+};
+
 export const Uuid = () => {
-	const [state, setState] = useState<UuidState>({
-		count: 10,
-		upper: false,
-		noDash: false,
-		uuids: Array.from({ length: 10 }, generateUUID)
-	});
+	const [state, setState] = useState<UuidState>(emptyState);
 
 	const generate = useCallback(() => {
 		setState((prev) => ({ ...prev, uuids: Array.from({ length: prev.count }, generateUUID) }));

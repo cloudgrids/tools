@@ -16,13 +16,15 @@ export interface ColorState {
 	contrastBg: string;
 }
 
+const emptyState: ColorState = {
+	hex: DEFAULT,
+	hexInput: DEFAULT,
+	contrastText: '#ffffff',
+	contrastBg: DEFAULT
+};
+
 export const Color = () => {
-	const [state, setState] = useState<ColorState>({
-		hex: DEFAULT,
-		hexInput: DEFAULT,
-		contrastText: '#ffffff',
-		contrastBg: DEFAULT
-	});
+	const [state, setState] = useState<ColorState>(emptyState);
 
 	const colorInfo = useMemo(() => {
 		if (!isValidHex(state.hex)) return null;

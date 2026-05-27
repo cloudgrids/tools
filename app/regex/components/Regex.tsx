@@ -18,13 +18,15 @@ export interface RegexResult {
 	expression: RegExp;
 }
 
+const emptyState: RegexState = {
+	pattern: REGEX_SAMPLES.Email.pattern,
+	flags: 'g',
+	text: REGEX_DEFAULT_TEXT,
+	replacement: ''
+};
+
 export const Regex = () => {
-	const [state, setState] = useState<RegexState>({
-		pattern: REGEX_SAMPLES.Email.pattern,
-		flags: 'g',
-		text: REGEX_DEFAULT_TEXT,
-		replacement: ''
-	});
+	const [state, setState] = useState<RegexState>(emptyState);
 
 	const result = useMemo(() => {
 		if (!state.pattern) return null;
