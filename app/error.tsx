@@ -1,27 +1,22 @@
 'use client';
 
-import Logo from '@/components/Logo';
+import { ToolsLogo } from '@/components/ToolsLogo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
 	const router = useRouter();
-	useEffect(() => {
-		// Log the error to an error reporting service
-		console.error('Application error:', error);
-	}, [error]);
 
 	return (
 		<div className="min-h-screen bg-background flex items-center justify-center p-4">
-			<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(var(--primary-rgb,255,145,77),0.05),_transparent_70%)]" />
+			<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb,255,145,77),0.05),transparent_70%)]" />
 
 			<Card className="relative z-10 max-w-2xl w-full p-8 sm:p-12 text-center space-y-8 border-none bg-card/50 backdrop-blur-xl shadow-2xl">
 				{/* Logo */}
 				<div className="flex justify-center">
-					<Logo className="h-24 w-24 sm:h-32 sm:w-32" />
+					<ToolsLogo className="h-24 w-24 sm:h-32 sm:w-32" />
 				</div>
 
 				{/* Error Icon */}

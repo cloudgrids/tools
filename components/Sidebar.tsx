@@ -84,11 +84,7 @@ export function Sidebar() {
 								const isActive = pathname === `/${tool.id}`;
 								return (
 									<SidebarMenuItem key={tool.id}>
-										<SidebarMenuButton
-											render={<Link href={`/${tool.id}`} />}
-											isActive={isActive}
-											tooltip={tool.name}
-										>
+										<SidebarMenuButton render={<Link href={`/${tool.id}`} />} isActive={isActive} tooltip={tool.name}>
 											<ToolIcon name={tool.icon} />
 											<span>{tool.name}</span>
 										</SidebarMenuButton>

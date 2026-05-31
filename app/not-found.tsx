@@ -1,6 +1,6 @@
 'use client';
 
-import Logo from '@/components/Logo';
+import { ToolsLogo } from '@/components/ToolsLogo';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
@@ -11,8 +11,8 @@ export default function NotFound() {
 			<div className="absolute inset-0 opacity-20">{/* <Loading /> */}</div>
 
 			<div className="absolute left-4 top-4 md:left-8 md:top-8 z-50 flex items-center gap-2">
-				<Logo className="h-8 w-8" />
-				<span className="text-lg font-bold tracking-tight uppercase font-black">Tools</span>
+				<ToolsLogo className="h-8 w-8" />
+				<span className="text-lg font-bold tracking-tight uppercase">Tools</span>
 			</div>
 
 			<div className="z-10 container mx-auto flex flex-col items-center justify-center px-4 text-center">
@@ -23,7 +23,7 @@ export default function NotFound() {
 					className="space-y-6"
 				>
 					<div className="relative">
-						<h1 className="text-[150px] font-black leading-none tracking-tighter sm:text-[200px] text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/20">
+						<h1 className="text-[150px] font-black leading-none tracking-tighter sm:text-[200px] text-transparent bg-clip-text bg-linear-to-b from-foreground to-foreground/20">
 							404
 						</h1>
 						<motion.div
@@ -35,7 +35,7 @@ export default function NotFound() {
 
 					<div className="space-y-2">
 						<h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Page not found</h2>
-						<p className="text-muted-foreground max-w-[600px] mx-auto text-lg font-medium">
+						<p className="text-muted-foreground max-w-150 mx-auto text-lg font-medium">
 							The page you are looking for does not exist or has been relocated.
 						</p>
 					</div>

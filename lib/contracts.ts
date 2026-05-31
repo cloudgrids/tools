@@ -7,6 +7,7 @@ export interface Tool {
 	desc: string;
 	category: ToolCategory;
 	keywords: string[];
+	isExperimental?: boolean;
 }
 
 export interface ColorStop {

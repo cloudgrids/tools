@@ -1,11 +1,11 @@
 'use client';
 
-import { Logo } from '@/components/Logo';
 import { Separator } from '@/components/ui/separator';
 import { AppConfig } from '@/lib/app.config';
 import { COMMUNITY, LEGAL, SOCIALS } from '@/lib/constants';
 import Image from 'next/image';
 import Link from 'next/link';
+import ToolsLogo from './ToolsLogo';
 
 const footerLinks = {
 	Community: COMMUNITY,
@@ -19,7 +19,7 @@ export function Footer() {
 				<div className="grid grid-cols-1 gap-10 md:grid-cols-5 mb-10">
 					<div className="md:col-span-2">
 						<Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
-							<Logo width={28} height={28} className="transition-transform duration-200 group-hover:scale-110" />
+							<ToolsLogo width={28} height={28} className="transition-transform duration-200 group-hover:scale-110" />
 							<span className="text-base font-bold tracking-tight text-foreground">{AppConfig.applicationName}</span>
 						</Link>
 						<p className="flex items-center gap-2">

@@ -11,8 +11,6 @@ export interface Base64State {
 	input: string;
 	output: string;
 	stats: string;
-
-	// File state
 	fileName: string;
 	fileSize: string;
 	dataUrl: string;
@@ -46,9 +44,7 @@ export const Base64 = () => {
 					</Button>
 				))}
 			</div>
-
 			{state.tab === 'text' && <Base64TextTab onSetState={setState} state={state} />}
-
 			{state.tab === 'file' && <Base64FileTab onSetState={setState} state={state} />}
 		</div>
 	);
