@@ -12,7 +12,8 @@ export type ToolIconName =
 	| 'shield-check'
 	| 'diff'
 	| 'link'
-	| 'key-round';
+	| 'key-round'
+	| 'boxes';
 
 export type GradientType = 'linear' | 'radial' | 'conic';
 

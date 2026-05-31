@@ -1,4 +1,4 @@
-import Logo from '@/components/Logo';
+import { ToolsLogo } from '@/components/ToolsLogo';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
@@ -37,7 +37,7 @@ export default function Image() {
 					transform: 'scale(1.5)'
 				}}
 			>
-				<Logo width={128} height={128} />
+				<ToolsLogo width={128} height={128} />
 			</div>
 			<div
 				style={{

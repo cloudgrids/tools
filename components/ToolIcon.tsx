@@ -2,6 +2,7 @@ import type { ToolIconName } from '@/lib/enumerations';
 import {
 	Binary,
 	Blend,
+	Boxes,
 	Braces,
 	FileText,
 	Fingerprint,
@@ -27,7 +28,8 @@ const ICONS: Record<ToolIconName, LucideIcon> = {
 	'shield-check': ShieldCheck,
 	'diff': SquareSplitHorizontal,
 	'link': Link,
-	'key-round': KeyRound
+	'key-round': KeyRound,
+	'boxes': Boxes
 };
 
 interface ToolIconProps {

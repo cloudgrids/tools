@@ -1,6 +1,6 @@
 'use client';
 
-import Logo from '@/components/Logo';
+import { ToolsLogo } from '@/components/ToolsLogo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertCircle, Home } from 'lucide-react';
@@ -8,16 +8,17 @@ import { useRouter } from 'next/navigation';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
 	const router = useRouter();
+	console.error('Global Error:', error, reset);
 	return (
 		<html>
 			<body>
 				<div className="min-h-screen bg-background flex items-center justify-center p-4">
-					<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(var(--primary-rgb,255,145,77),0.05),_transparent_70%)]" />
+					<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb,255,145,77),0.05),transparent_70%)]" />
 
 					<Card className="relative z-10 max-w-2xl w-full p-8 sm:p-12 text-center space-y-8 border-none bg-card/50 backdrop-blur-xl shadow-2xl">
 						{/* Logo */}
 						<div className="flex justify-center">
-							<Logo className="h-24 w-24 sm:h-32 sm:w-32" />
+							<ToolsLogo className="h-24 w-24 sm:h-32 sm:w-32" />
 						</div>
 
 						{/* Error Icon */}
@@ -51,8 +52,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 						{/* Support Info */}
 						<div className="pt-8 border-t border-border/50">
 							<p className="text-xs text-muted-foreground/60 font-medium">
-								Need immediate assistance? Email us at{' '}
-								<a href="mailto:[support-tools@cloudgrids.tech]">[EMAIL_ADDRESS]</a>
+								Need immediate assistance? Email us at <a href="mailto:[support-tools@cloudgrids.tech]">[EMAIL_ADDRESS]</a>
 							</p>
 						</div>
 					</Card>

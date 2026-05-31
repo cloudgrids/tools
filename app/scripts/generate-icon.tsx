@@ -1,4 +1,4 @@
-import Logo from '@/components/Logo';
+import Logo from '@/components/ToolsLogo';
 import { writeFile } from 'fs/promises';
 import { ImageResponse } from 'next/og';
 import { join } from 'path';

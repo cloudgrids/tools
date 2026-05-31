@@ -96,6 +96,15 @@ export const TOOLS: Tool[] = [
 		desc: 'Inspect & decode JWT tokens',
 		category: 'utilities',
 		keywords: ['jwt', 'token', 'decode', 'auth', 'bearer']
+	},
+	{
+		id: 'logo',
+		icon: 'boxes',
+		name: 'Logo Generator',
+		desc: 'Generate random logos with a unique voxel design',
+		category: 'generators',
+		keywords: ['logo', 'random-logo', 'generate'],
+		isExperimental: true
 	}
 ];
 
