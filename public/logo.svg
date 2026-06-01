@@ -24,11 +24,11 @@
     strokeLinejoin="round"
   />
   <defs>
-    <linearGradient id="logo-grad-1" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+    <linearGradient id="Geometry-grad-1" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
       <stop stopColor="#3B82F6" />
       <stop offset="1" stopColor="#8B5CF6" />
     </linearGradient>
-    <linearGradient id="logo-grad-2" x1="16" y1="13" x2="16" y2="23" gradientUnits="userSpaceOnUse">
+    <linearGradient id="Geometry-grad-2" x1="16" y1="13" x2="16" y2="23" gradientUnits="userSpaceOnUse">
       <stop stopColor="#60A5FA" />
       <stop offset="1" stopColor="#A78BFA" />
     </linearGradient>

@@ -1,4 +1,4 @@
-import Logo from '@/components/ToolsLogo';
+import ToolsLogo from '@/components/ToolsLogo';
 import { writeFile } from 'fs/promises';
 import { ImageResponse } from 'next/og';
 import { join } from 'path';
@@ -17,7 +17,7 @@ export default async function generateIcon(width: number, height: number, name: 
 				justifyContent: 'center'
 			}}
 		>
-			<Logo width={width} height={height} />
+			<ToolsLogo width={width} height={height} />
 		</div>,
 		{ width, height }
 	);
