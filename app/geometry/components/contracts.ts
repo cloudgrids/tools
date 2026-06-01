@@ -1,3 +1,5 @@
+import { LucideIcon } from 'lucide-react';
+
 export enum GeometryShape {
 	ORGANIC = 'organic',
 	TOWER = 'tower',
@@ -88,3 +90,60 @@ export type GeometryTheme = {
 	shape: GeometryShape;
 	paletteType: GeometryPaletteType;
 };
+
+export interface BaseInput {
+	label: string;
+	Icon: LucideIcon;
+}
+
+export interface ButtonInput extends BaseInput {
+	type: 'button';
+	value: string;
+	onClick: () => void;
+}
+
+export interface ToggleInput extends BaseInput {
+	type: 'toggle';
+	value: string;
+	onClick: () => void;
+}
+
+export interface RangeInput extends BaseInput {
+	type: 'range';
+	value: number;
+	min?: number;
+	max?: number;
+	step?: number;
+	onClick: (value: number) => void;
+}
+
+export interface SelectInput<T extends string = string> extends BaseInput {
+	type: 'select';
+	value: T;
+	options: readonly {
+		label: string;
+		value: T;
+	}[];
+	onClick: (value: T) => void;
+}
+
+export interface RadioInput<T extends string = string> extends BaseInput {
+	type: 'radio';
+	value: T;
+	options: readonly {
+		label: string;
+		value: T;
+	}[];
+	onClick: (value: T) => void;
+}
+
+export type GeometryInput = ButtonInput | ToggleInput | RangeInput | SelectInput | RadioInput;
+
+export interface GeometryOptionsProps {
+	geometryState: GeometryProps;
+	setGeometryState: React.Dispatch<React.SetStateAction<GeometryProps>>;
+	generate: boolean;
+	setGenerate: React.Dispatch<React.SetStateAction<boolean>>;
+	renderMode: '2d' | '3d';
+	setRenderMode: React.Dispatch<React.SetStateAction<'2d' | '3d'>>;
+}

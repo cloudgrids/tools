@@ -32,20 +32,17 @@ export function RandomGeometry({
 
 		const mesh = buildVoxelMesh(voxels);
 
-		const projected = projectIsometric(mesh.vertices, padding, rotation);
-
 		return {
-			points: projected.points,
-			lines: mesh.lines,
-			viewBox: projected.viewBox
+			vertices: mesh.vertices,
+			lines: mesh.lines
 		};
-	}, [voxelCount, _remakeCount, symmetry, maxHeight, rotation, shape, padding]);
+	}, [voxelCount, _remakeCount, symmetry, maxHeight, shape]);
 
 	return (
 		<SvgRenderer
-			points={geometry.points}
+			points={projectIsometric(geometry.vertices, padding, rotation).points}
 			lines={geometry.lines}
-			viewBox={geometry.viewBox}
+			viewBox={projectIsometric(geometry.vertices, padding, rotation).viewBox}
 			width={width}
 			height={height}
 			className={className}

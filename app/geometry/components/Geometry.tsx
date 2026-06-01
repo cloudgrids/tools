@@ -9,7 +9,7 @@ import { generateVoxelCluster } from './generators';
 import { Geometry3D } from './Geometry3d';
 import { GeometryHeader } from './GeometryHeader';
 import { GeometryOptions } from './GeometryOptions';
-import { RandomGeometry } from './RandomLogo';
+import { RandomGeometry } from './RandomGeometry';
 
 const emptyGeometry: GeometryProps = {
 	symmetry: true,
@@ -64,18 +64,6 @@ export const Geometry = () => {
 			<CardHeader className="space-y-4">
 				<GeometryHeader />
 				<Separator />
-				<GeometryOptions
-					geometryState={geometryState}
-					setGeometryState={setGeometryState}
-					renderMode={renderMode}
-					setRenderMode={setRenderMode}
-					generate={generate}
-					setGenerate={setGenerate}
-				/>
-				<Separator />
-			</CardHeader>
-
-			<CardContent>
 				<div className="relative flex h-80 items-center justify-center overflow-hidden rounded-2xl border bg-linear-to-br from-muted/40 via-background to-muted/20">
 					{renderMode === '2d' ? (
 						<>
@@ -93,6 +81,17 @@ export const Geometry = () => {
 						</div>
 					)}
 				</div>
+				<Separator />
+			</CardHeader>
+			<CardContent>
+				<GeometryOptions
+					geometryState={geometryState}
+					setGeometryState={setGeometryState}
+					renderMode={renderMode}
+					setRenderMode={setRenderMode}
+					generate={generate}
+					setGenerate={setGenerate}
+				/>
 			</CardContent>
 		</Card>
 	);

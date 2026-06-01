@@ -1,65 +1,17 @@
 import * as React from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Box, Boxes, Grid3x3, Layers3, LucideIcon, Palette, RotateCcw, Wand2, Zap } from 'lucide-react';
-import { GeometryBackground, GeometryLineStyle, GeometryNodeStyle, GeometryPaletteType, GeometryProps, GeometryShape } from './contracts';
-
-type BaseInput = {
-	label: string;
-	Icon: LucideIcon;
-};
-
-type ButtonInput = BaseInput & {
-	type: 'button';
-	value: string;
-	onClick: () => void;
-};
-
-type ToggleInput = BaseInput & {
-	type: 'toggle';
-	value: string;
-	onClick: () => void;
-};
-
-type RangeInput = BaseInput & {
-	type: 'range';
-	value: number;
-	min?: number;
-	max?: number;
-	step?: number;
-	onClick: (value: number) => void;
-};
-
-type SelectInput<T extends string = string> = BaseInput & {
-	type: 'select';
-	value: T;
-	options: readonly {
-		label: string;
-		value: T;
-	}[];
-	onClick: (value: T) => void;
-};
-
-type RadioInput<T extends string = string> = BaseInput & {
-	type: 'radio';
-	value: T;
-	options: readonly {
-		label: string;
-		value: T;
-	}[];
-	onClick: (value: T) => void;
-};
-
-type GeometryInput = ButtonInput | ToggleInput | RangeInput | SelectInput | RadioInput;
-
-interface GeometryOptionsProps {
-	geometryState: GeometryProps;
-	setGeometryState: React.Dispatch<React.SetStateAction<GeometryProps>>;
-	generate: boolean;
-	setGenerate: React.Dispatch<React.SetStateAction<boolean>>;
-	renderMode: '2d' | '3d';
-	setRenderMode: React.Dispatch<React.SetStateAction<'2d' | '3d'>>;
-}
+import { Box, Boxes, Grid3x3, Layers3, Palette, RotateCcw, Wand2, Zap } from 'lucide-react';
+import {
+	GeometryBackground,
+	GeometryInput,
+	GeometryLineStyle,
+	GeometryNodeStyle,
+	GeometryOptionsProps,
+	GeometryPaletteType,
+	GeometryShape
+} from './contracts';
 
 export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 	geometryState,
@@ -239,7 +191,7 @@ export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 	];
 
 	return (
-		<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+		<div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
 			{inputs.map((input, i) => {
 				const { label, Icon } = input;
 
@@ -252,15 +204,15 @@ export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 
 						<div className="flex flex-wrap gap-2">
 							{input.type === 'button' && (
-								<button onClick={input.onClick} className="rounded-md border px-3 py-2 text-sm transition hover:bg-muted">
+								<Button onClick={input.onClick} className="rounded-md border px-3 py-2 text-sm transition hover:bg-muted">
 									{input.value}
-								</button>
+								</Button>
 							)}
 
 							{input.type === 'toggle' && (
-								<button onClick={input.onClick} className="rounded-md border px-3 py-2 text-sm transition hover:bg-muted">
+								<Button onClick={input.onClick} className="rounded-md border px-3 py-2 text-sm transition hover:bg-muted">
 									{input.value}
-								</button>
+								</Button>
 							)}
 
 							{input.type === 'range' && (
@@ -298,7 +250,7 @@ export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 										const active = option.value === input.value;
 
 										return (
-											<button
+											<Button
 												key={option.value}
 												onClick={() => input.onClick(option.value)}
 												className={`rounded-md border px-3 py-2 text-sm transition ${
@@ -306,7 +258,7 @@ export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 												}`}
 											>
 												{option.label}
-											</button>
+											</Button>
 										);
 									})}
 								</div>
