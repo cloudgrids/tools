@@ -142,8 +142,23 @@ export type GeometryInput = ButtonInput | ToggleInput | RangeInput | SelectInput
 export interface GeometryOptionsProps {
 	geometryState: GeometryProps;
 	setGeometryState: React.Dispatch<React.SetStateAction<GeometryProps>>;
-	generate: boolean;
-	setGenerate: React.Dispatch<React.SetStateAction<boolean>>;
+	canGenerate: boolean;
+	setCanGenerate: React.Dispatch<React.SetStateAction<boolean>>;
 	renderMode: '2d' | '3d';
 	setRenderMode: React.Dispatch<React.SetStateAction<'2d' | '3d'>>;
+}
+
+
+export enum ImageExportFormat {
+	PNG = 'png',
+	SVG = 'svg',
+	JPEG = 'jpeg',
+	JPG = 'jpg'
+}
+
+export interface GeometryExportState {
+	svg: string | null;
+	width: number;
+	height: number;
+	type: ImageExportFormat;
 }

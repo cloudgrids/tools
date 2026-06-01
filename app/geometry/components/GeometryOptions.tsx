@@ -16,8 +16,8 @@ import {
 export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 	geometryState,
 	setGeometryState,
-	generate,
-	setGenerate,
+	canGenerate,
+	setCanGenerate,
 	renderMode,
 	setRenderMode
 }) => {
@@ -26,10 +26,10 @@ export const GeometryOptions: React.FC<GeometryOptionsProps> = ({
 			label: 'Generate',
 			Icon: RotateCcw,
 			type: 'button',
-			value: generate ? 'Remake' : 'Generate',
+			value: canGenerate ? 'Remake' : 'Generate',
 			onClick: () => {
-				if (!generate) {
-					setGenerate(true);
+				if (!canGenerate) {
+					setCanGenerate(true);
 					return;
 				}
 
