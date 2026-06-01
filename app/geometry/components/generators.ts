@@ -88,20 +88,19 @@ export const getDirections = (shape: GeometryShape) => {
 	}
 };
 
-export const setBackground = (background: GeometryBackground) => {
+export const getBackgroundStyles = (background: GeometryBackground) => {
 	switch (background) {
 		case 'dark':
-			return '#333';
+			return { backgroundColor: '#1a1a1a' };
 		case 'light':
-			return 'radial-gradient(#ccc 1px, transparent 1px), radial-gradient(#ccc 1px, transparent 1px)';
+			return { backgroundColor: '#f5f5f5' };
 		case 'gradient':
-			return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+			return { background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' };
 		case 'glass':
-			return 'rgba(255, 255, 255, 0.1)';
+			return { backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' };
 		case 'transparent':
-			return 'transparent';
 		default:
-			return 'transparent';
+			return { backgroundColor: 'transparent' };
 	}
 };
 

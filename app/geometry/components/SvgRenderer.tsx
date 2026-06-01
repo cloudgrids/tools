@@ -1,5 +1,5 @@
 import { SvgRendererProps } from './contracts';
-import { getPalette, LINE_STYLES } from './generators';
+import { getBackgroundStyles, getPalette, LINE_STYLES } from './generators';
 
 export function SvgRenderer({
 	points,
@@ -13,22 +13,6 @@ export function SvgRenderer({
 	nodeStyle,
 	paletteType
 }: SvgRendererProps) {
-	const getBackgroundStyles = () => {
-		switch (background) {
-			case 'dark':
-				return { backgroundColor: '#1a1a1a' };
-			case 'light':
-				return { backgroundColor: '#f5f5f5' };
-			case 'gradient':
-				return { background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' };
-			case 'glass':
-				return { backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' };
-			case 'transparent':
-			default:
-				return { backgroundColor: 'transparent' };
-		}
-	};
-
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +23,7 @@ export function SvgRenderer({
 			fill="none"
 			overflow="visible"
 			aria-hidden="true"
-			style={getBackgroundStyles()}
+			style={getBackgroundStyles(background)}
 		>
 			<defs>
 				<linearGradient id="cg-gradient" x1="8" y1="20" x2="112" y2="84" gradientUnits="userSpaceOnUse">

@@ -4,7 +4,17 @@ import ToolsLogo from '@/components/ToolsLogo';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useMemo, useState } from 'react';
-import { GeometryBackground, GeometryLineStyle, GeometryNodeStyle, GeometryPaletteType, GeometryProps, GeometryShape } from './contracts';
+import { renderToStaticMarkup } from 'react-dom/server';
+import {
+	GeometryBackground,
+	GeometryExportState,
+	GeometryLineStyle,
+	GeometryNodeStyle,
+	GeometryPaletteType,
+	GeometryProps,
+	GeometryShape,
+	ImageExportFormat
+} from './contracts';
 import { generateVoxelCluster } from './generators';
 import { Geometry3D } from './Geometry3d';
 import { GeometryHeader } from './GeometryHeader';
@@ -28,14 +38,22 @@ const emptyGeometry: GeometryProps = {
 	padding: 4
 };
 
+const defaultExportState: GeometryExportState = {
+	svg: null,
+	width: 512,
+	height: 512,
+	type: ImageExportFormat.SVG
+};
+
 export const Geometry = () => {
 	const [geometryState, setGeometryState] = useState<GeometryProps>(emptyGeometry);
-	const [generate, setGenerate] = useState(false);
+	const [canGenerate, setCanGenerate] = useState<boolean>(false);
 	const [renderMode, setRenderMode] = useState<'2d' | '3d'>('2d');
+	const [exportState, setExportState] = useState<GeometryExportState>(defaultExportState);
 
 	const voxels = useMemo(
 		() =>
-			generate
+			canGenerate
 				? generateVoxelCluster({
 						voxelCount: geometryState.voxelCount,
 						symmetry: geometryState.symmetry,
@@ -45,7 +63,7 @@ export const Geometry = () => {
 					})
 				: [],
 		[
-			generate,
+			canGenerate,
 			geometryState.voxelCount,
 			geometryState.symmetry,
 			geometryState._remakeCount,
@@ -54,22 +72,23 @@ export const Geometry = () => {
 		]
 	);
 
-	// Debug log
-	if (typeof window !== 'undefined' && generate) {
-		console.log('Voxels generated:', voxels.length, voxels);
-	}
+	const svg = useMemo(() => {
+		if (!canGenerate) return null;
+		const ELEMENT = <RandomGeometry {...geometryState} />;
+		return renderToStaticMarkup(ELEMENT);
+	}, [canGenerate, geometryState]);
 
 	return (
 		<Card className="overflow-hidden border-border/60 bg-background/70 backdrop-blur-xl">
 			<CardHeader className="space-y-4">
-				<GeometryHeader />
+				<GeometryHeader exportState={{ ...exportState, svg }} setExportState={setExportState} canGenerate={canGenerate} />
 				<Separator />
 				<div className="relative flex h-80 items-center justify-center overflow-hidden rounded-2xl border bg-linear-to-br from-muted/40 via-background to-muted/20">
 					{renderMode === '2d' ? (
 						<>
 							<div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_70%)]" />
 							<div className="relative z-10 transition-all duration-500 hover:scale-[1.03]">
-								{!generate ? <ToolsLogo width={120} height={120} /> : <RandomGeometry {...geometryState} />}
+								{!canGenerate ? <ToolsLogo width={120} height={120} /> : <RandomGeometry {...geometryState} />}
 							</div>
 							<div className="pointer-events-none absolute inset-0 opacity-[0.04]">
 								<div className="h-full w-full bg-[linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] bg-size-[24px_24px]" />
@@ -77,7 +96,7 @@ export const Geometry = () => {
 						</>
 					) : (
 						<div className="absolute inset-0 z-10">
-							{!generate ? <ToolsLogo width="100%" height="100%" /> : <Geometry3D {...geometryState} voxels={voxels} />}
+							{!canGenerate ? <ToolsLogo width="100%" height="100%" /> : <Geometry3D {...geometryState} voxels={voxels} />}
 						</div>
 					)}
 				</div>
@@ -89,8 +108,8 @@ export const Geometry = () => {
 					setGeometryState={setGeometryState}
 					renderMode={renderMode}
 					setRenderMode={setRenderMode}
-					generate={generate}
-					setGenerate={setGenerate}
+					canGenerate={canGenerate}
+					setCanGenerate={setCanGenerate}
 				/>
 			</CardContent>
 		</Card>
