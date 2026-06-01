@@ -98,12 +98,12 @@ export const TOOLS: Tool[] = [
 		keywords: ['jwt', 'token', 'decode', 'auth', 'bearer']
 	},
 	{
-		id: 'logo',
+		id: 'geometry',
 		icon: 'boxes',
-		name: 'Logo Generator',
-		desc: 'Generate random logos with a unique voxel design',
+		name: 'Geometry Generator',
+		desc: 'Generate random geometry with a unique voxel design',
 		category: 'generators',
-		keywords: ['logo', 'random-logo', 'generate'],
+		keywords: ['Geometry', 'random-Geometry', 'generate'],
 		isExperimental: true
 	}
 ];
