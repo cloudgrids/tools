@@ -1,0 +1,317 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+'use client';
+
+import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, ChevronsRight, CircleChevronRight, DiscAlbum, Pause, Play, Sparkles, X } from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { MotionPresets } from './MotionPresets';
+import { Button } from './ui/button';
+
+interface FullscreenViewerProps {
+	isOpen: boolean;
+	onClose: () => void;
+	items: Array<{ url: string; type: 'IMAGE' | 'VIDEO' | string }>;
+	initialIndex: number;
+	setCurrentlyViewingIndex: React.Dispatch<React.SetStateAction<number>>;
+	loadMore?: () => void;
+	hasMore?: boolean;
+	loading?: boolean;
+}
+
+export const FullscreenViewer = ({
+	isOpen,
+	onClose,
+	items,
+	initialIndex,
+	setCurrentlyViewingIndex,
+	loadMore,
+	hasMore,
+	loading
+}: FullscreenViewerProps) => {
+	const [currentIndex, setCurrentIndex] = useState(initialIndex);
+	const [isPlaying, setIsPlaying] = useState(true);
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const [slideShow, setSlideShow] = useState<boolean>(false);
+	const [hideThumbnails, setHideThumbnails] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (currentIndex > items.length - 6 && hasMore && !loading) {
+			loadMore?.();
+		}
+	}, [currentIndex, items.length, loadMore, hasMore, loading]);
+
+	useEffect(() => {
+		const originalBodyOverflow = document.body.style.overflow;
+		const originalHtmlOverflow = document.documentElement.style.overflow;
+
+		document.body.style.overflow = 'hidden';
+		document.documentElement.style.overflow = 'hidden';
+
+		return () => {
+			document.body.style.overflow = originalBodyOverflow;
+			document.documentElement.style.overflow = originalHtmlOverflow;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (isOpen) {
+			setCurrentIndex(initialIndex);
+			setCurrentlyViewingIndex(initialIndex);
+		}
+	}, [isOpen, initialIndex, setCurrentlyViewingIndex]);
+
+	const handleNext = useCallback(() => {
+		setCurrentIndex((prev) => (prev + 1) % items.length);
+		setCurrentlyViewingIndex((prev) => (prev + 1) % items.length);
+	}, [items.length, setCurrentlyViewingIndex]);
+
+	const handlePrev = useCallback(() => {
+		setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+		setCurrentlyViewingIndex((prev) => (prev - 1 + items.length) % items.length);
+	}, [items.length, setCurrentlyViewingIndex]);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'ArrowRight') handleNext();
+			if (e.key === 'ArrowLeft') handlePrev();
+			if (e.key === 'Escape') onClose();
+			if (e.key === ' ') {
+				e.preventDefault();
+				setIsPlaying((prev) => !prev);
+			}
+		};
+		if (isOpen) {
+			window.addEventListener('keydown', handleKeyDown);
+		}
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [isOpen, handleNext, handlePrev, onClose]);
+
+	useEffect(() => {
+		if (videoRef.current) {
+			if (isPlaying) {
+				videoRef.current.play().catch(() => {});
+			} else {
+				videoRef.current.pause();
+			}
+		}
+	}, [isPlaying, currentIndex]);
+
+	useEffect(() => {
+		if (!slideShow) return;
+
+		const interval = setInterval(() => {
+			setCurrentIndex((prev) => {
+				const next = (prev + 1) % items.length;
+
+				if (next === items.length - 1) {
+					setSlideShow(false);
+				}
+
+				return next;
+			});
+
+			setCurrentlyViewingIndex((prev) => (prev + 1) % items.length);
+		}, 3000);
+
+		return () => clearInterval(interval);
+	}, [slideShow, items.length, setCurrentlyViewingIndex]);
+
+	if (items.length === 0 || typeof document === 'undefined') return null;
+
+	const currentItem = items[currentIndex];
+	if (!currentItem) return null;
+
+	const isVideo = currentItem.type.toUpperCase() === 'VIDEO' || currentItem.url.endsWith('.mp4');
+
+	const content = (
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.3 }}
+			className={cn(
+				'fixed inset-0 z-10000 flex items-center justify-center bg-black/98 backdrop-blur-2xl',
+				!isOpen && 'pointer-events-none'
+			)}
+		>
+			{/* Decorative Background Blur */}
+			<AnimatePresence mode="wait">
+				<motion.div
+					key={`feat-bg-${currentIndex}`}
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 0.15 }}
+					exit={{ opacity: 0 }}
+					transition={{ duration: 1 }}
+					className="absolute inset-0 pointer-events-none blur-[120px] saturate-200 scale-150"
+				>
+					{currentItem.url && (
+						<Image src={currentItem.url} alt="" className="h-full w-full object-cover" width={300} height={400} />
+					)}
+				</motion.div>
+			</AnimatePresence>
+
+			{/* Top Controls */}
+			<div className="absolute top-0 left-0 right-0 z-110 flex items-center justify-between p-6 md:p-10 pointer-events-none">
+				<div className="px-5 py-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-3xl pointer-events-auto">
+					<span className="text-[10px] md:text-xs font-black tracking-[0.3em] text-white/90 uppercase">
+						{currentIndex + 1} <span className="text-white/30 mx-2">/</span> {items.length}
+					</span>
+				</div>
+
+				<div className="flex gap-4 pointer-events-auto">
+					{isVideo && (
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => setIsPlaying(!isPlaying)}
+							className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-3xl text-white hover:bg-white/10 transition-all font-bold"
+						>
+							{isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+						</Button>
+					)}
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => setSlideShow((prev) => !prev)}
+						className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-3xl text-white hover:bg-white/10 hover:scale-110 active:scale-95 transition-all"
+					>
+						{slideShow ? <ChevronsRight className="h-5 w-5" /> : <CircleChevronRight className="h-5 w-5" />}
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={onClose}
+						className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-3xl text-white hover:bg-white/10 hover:scale-110 active:scale-95 transition-all"
+					>
+						<X className="h-6 w-6" />
+					</Button>
+				</div>
+			</div>
+
+			{/* Main Media Preview */}
+			<div
+				className="relative w-full h-full flex items-center justify-center p-6 md:p-20"
+				onClick={() => {
+					if (slideShow) {
+						setSlideShow(false);
+					}
+				}}
+			>
+				<MotionPresets motionType="SlideRightToLeft" className="relative w-full h-full flex items-center justify-center">
+					{isVideo ? (
+						currentItem.url ? (
+							<video
+								ref={videoRef}
+								src={currentItem.url}
+								className="max-w-full max-h-full object-contain rounded-xl shadow-2xl mb-5"
+								controls
+								playsInline
+								loop
+								muted={false}
+							/>
+						) : (
+							<div className="flex flex-col items-center gap-4 text-white/20">
+								<Sparkles className="h-20 w-20" />
+								<p className="text-[10px] font-black uppercase tracking-[0.3em]">Video URL Missing</p>
+							</div>
+						)
+					) : currentItem.url ? (
+						<Image
+							width={800}
+							height={400}
+							src={currentItem.url}
+							alt="Fullscreen Preview"
+							className="max-w-full max-h-full object-contain shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] rounded-sm"
+							draggable={false}
+						/>
+					) : (
+						<div className="flex flex-col items-center gap-4 text-white/20">
+							<Sparkles className="h-20 w-20" />
+							<p className="text-[10px] font-black uppercase tracking-[0.3em]">Image URL Missing</p>
+						</div>
+					)}
+				</MotionPresets>
+			</div>
+
+			{/* Navigation Arrows */}
+			{items.length > 1 && (
+				<>
+					<div className="absolute left-6 md:left-10 top-1/2 -translate-y-1/2 z-110">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={(e) => {
+								e.stopPropagation();
+								handlePrev();
+							}}
+							className="h-16 w-16 md:h-20 md:w-20 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-3xl text-white hover:bg-white/10 hover:scale-110 active:scale-90 transition-all shadow-2xl group"
+						>
+							<ChevronLeft className="h-8 w-8 md:h-10 md:w-10 group-hover:-translate-x-1 transition-transform" />
+						</Button>
+					</div>
+
+					<div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 z-110">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={(e) => {
+								e.stopPropagation();
+								handleNext();
+							}}
+							className="h-16 w-16 md:h-20 md:w-20 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-3xl text-white hover:bg-white/10 hover:scale-110 active:scale-90 transition-all shadow-2xl group"
+						>
+							<ChevronRight className="h-8 w-8 md:h-10 md:w-10 group-hover:translate-x-1 transition-transform" />
+						</Button>
+					</div>
+				</>
+			)}
+
+			{/* Thumbnails Strip */}
+			{items.length > 1 && !hideThumbnails ? (
+				<div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-110 flex gap-3 md:p-3 p-0 rounded-4xl bg-white/5 border border-white/10 backdrop-blur-3xl max-w-[90vw] overflow-x-auto no-scrollbar pointer-events-auto">
+					<Button variant="ghost" size="icon" onClick={() => setHideThumbnails(true)}>
+						<DiscAlbum />
+					</Button>
+					{items.map((item, idx) => (
+						<button
+							key={`${item.url}-${idx}`}
+							onClick={(e) => {
+								e.stopPropagation();
+								setCurrentIndex(idx);
+								setCurrentlyViewingIndex(idx);
+							}}
+							className={cn(
+								'relative h-14 w-14 md:h-16 md:w-16 rounded-2xl overflow-hidden transition-all duration-300 shrink-0 border-2',
+								currentIndex === idx
+									? 'border-primary scale-110 shadow-[0_15px_30px_-5px_rgba(var(--primary),0.3)]'
+									: 'border-transparent opacity-30 hover:opacity-100 hover:scale-105'
+							)}
+						>
+							{item.type.toUpperCase() === 'VIDEO' ? (
+								<video controls={false} autoPlay={false} src={item.url} className="h-full w-full object-cover" />
+							) : (
+								<Image src={item.url} alt="" className="h-full w-full object-cover" width={300} height={400} />
+							)}
+							{item.type.toUpperCase() === 'VIDEO' ? (
+								<div className="absolute inset-0 flex items-center justify-center bg-black/20">
+									<Play className="h-4 w-4 text-white fill-white" />
+								</div>
+							) : null}
+						</button>
+					))}
+				</div>
+			) : (
+				<div className="absolute bottom-4 right-4 z-110">
+					<Button variant="ghost" size="icon" onClick={() => setHideThumbnails(false)}>
+						<DiscAlbum />
+					</Button>
+				</div>
+			)}
+		</motion.div>
+	);
+
+	return createPortal(content, document.body);
+};

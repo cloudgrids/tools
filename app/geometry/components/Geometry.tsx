@@ -6,8 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { useMemo, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
+	ExportProps,
 	GeometryBackground,
-	GeometryExportState,
 	GeometryLineStyle,
 	GeometryNodeStyle,
 	GeometryPaletteType,
@@ -38,8 +38,8 @@ const emptyGeometry: GeometryProps = {
 	padding: 4
 };
 
-const defaultExportState: GeometryExportState = {
-	svg: null,
+const defaultExportState: ExportProps = {
+	url: null,
 	width: 512,
 	height: 512,
 	type: ImageExportFormat.SVG
@@ -49,7 +49,7 @@ export const Geometry = () => {
 	const [geometryState, setGeometryState] = useState<GeometryProps>(emptyGeometry);
 	const [canGenerate, setCanGenerate] = useState<boolean>(false);
 	const [renderMode, setRenderMode] = useState<'2d' | '3d'>('2d');
-	const [exportState, setExportState] = useState<GeometryExportState>(defaultExportState);
+	const [exportState, setExportState] = useState<ExportProps>(defaultExportState);
 
 	const voxels = useMemo(
 		() =>
@@ -81,7 +81,7 @@ export const Geometry = () => {
 	return (
 		<Card className="overflow-hidden border-border/60 bg-background/70 backdrop-blur-xl">
 			<CardHeader className="space-y-4">
-				<GeometryHeader exportState={{ ...exportState, svg }} setExportState={setExportState} canGenerate={canGenerate} />
+				<GeometryHeader exportState={{ ...exportState, url: svg }} setExportState={setExportState} canGenerate={canGenerate} />
 				<Separator />
 				<div className="relative flex h-80 items-center justify-center overflow-hidden rounded-2xl border bg-linear-to-br from-muted/40 via-background to-muted/20">
 					{renderMode === '2d' ? (

@@ -1,5 +1,6 @@
 import type { ToolIconName } from '@/lib/enumerations';
 import {
+	Banknote,
 	Binary,
 	Blend,
 	Boxes,
@@ -29,7 +30,8 @@ const ICONS: Record<ToolIconName, LucideIcon> = {
 	'diff': SquareSplitHorizontal,
 	'link': Link,
 	'key-round': KeyRound,
-	'boxes': Boxes
+	'boxes': Boxes,
+	'banknote': Banknote
 };
 
 interface ToolIconProps {
