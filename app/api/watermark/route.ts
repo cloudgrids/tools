@@ -2,6 +2,7 @@ import { applyWatermark } from '@/lib/watermark';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const getOptions = (value: FormDataEntryValue | null) => {
 	if (typeof value !== 'string') return {};

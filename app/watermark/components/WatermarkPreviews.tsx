@@ -74,7 +74,11 @@ export const WatermarkPreviews: React.FC<WatermarkPreviewsProps> = ({
 
 					const response = await fetch('/api/watermark', { method: 'POST', body: formData });
 
-					if (!response.ok) throw new Error('Failed');
+					if (!response.ok) {
+						const text = await response.text();
+						console.error(text);
+						throw new Error(text);
+					}
 
 					const blob = await response.blob();
 					return URL.createObjectURL(blob);
