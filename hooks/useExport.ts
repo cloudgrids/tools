@@ -1,6 +1,7 @@
 'use client';
 
-import { GeometryExportState, ImageExportFormat } from '@/app/geometry/components/contracts';
+import { ExportProps, ImageExportFormat } from '@/app/geometry/components/contracts';
+import JSZIP from 'jszip';
 import { basename } from 'path';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -31,16 +32,16 @@ export const useExport = () => {
 		return { fileName: file.name, url };
 	};
 
-	const handleExport = async (param: GeometryExportState) => {
+	const handleExport = async (param: ExportProps) => {
 		setLoading(true);
-		if (!param.svg) {
-			toast.error('No SVG data to export!');
+		if (!param.url) {
+			toast.error('No file data to export!');
 			setLoading(false);
 			return;
 		}
 
 		try {
-			const blob = await getImage(param.svg, param.width, param.height, param.type);
+			const blob = await getImage(param.url, param.width, param.height, param.type);
 
 			const { fileName, url } = getFile(blob, param.type, param.width, param.height);
 
@@ -49,6 +50,48 @@ export const useExport = () => {
 			toast.success('Export successful!');
 		} catch (error) {
 			toast.error('Export failed!', {
+				description: error instanceof Error ? error.message : 'An unknown error occurred.'
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleExportAsZip = async (param: ExportProps[]) => {
+		setLoading(true);
+		try {
+			if (param?.length === 1 && param[0]?.url) downloadFile(param[0]?.url, `Tools_export.${param[0].type}`);
+			else await handleZip(param);
+		} catch (error) {
+			toast.error('Failed to create ZIP file.', {
+				description: error instanceof Error ? error.message : 'An unknown error occurred.'
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleZip = async (param: ExportProps[]) => {
+		const toastId = toast.loading('Preparing ZIP file...');
+		try {
+			const zip = new JSZIP();
+
+			for (const { url, type } of param) {
+				if (!url) continue;
+				const res = await fetch(url);
+				const blob = await res.blob();
+				zip.file(`image_${Date.now()}.${type}`, blob);
+			}
+
+			const zipBlob = await zip.generateAsync({ type: 'blob' });
+			const { fileName, url } = getFile(zipBlob, 'zip', 0, 0);
+
+			downloadFile(url, fileName);
+			toast.success('ZIP file is ready!', { id: toastId });
+			return url;
+		} catch (error) {
+			toast.error('Failed to create ZIP file.', {
+				id: toastId,
 				description: error instanceof Error ? error.message : 'An unknown error occurred.'
 			});
 		} finally {
@@ -101,6 +144,7 @@ export const useExport = () => {
 
 	return {
 		loading,
+		handleExportAsZip,
 		handleExport
 	};
 };

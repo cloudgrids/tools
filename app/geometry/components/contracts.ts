@@ -148,7 +148,6 @@ export interface GeometryOptionsProps {
 	setRenderMode: React.Dispatch<React.SetStateAction<'2d' | '3d'>>;
 }
 
-
 export enum ImageExportFormat {
 	PNG = 'png',
 	SVG = 'svg',
@@ -156,8 +155,8 @@ export enum ImageExportFormat {
 	JPG = 'jpg'
 }
 
-export interface GeometryExportState {
-	svg: string | null;
+export interface ExportProps {
+	url: string | null;
 	width: number;
 	height: number;
 	type: ImageExportFormat;

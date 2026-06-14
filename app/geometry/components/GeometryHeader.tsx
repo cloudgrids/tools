@@ -4,12 +4,12 @@ import { CardDescription, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useExport } from '@/hooks/useExport';
 import { Download, ImageIcon, Maximize2, Sparkles } from 'lucide-react';
-import { GeometryExportState, ImageExportFormat } from './contracts';
+import { ExportProps, ImageExportFormat } from './contracts';
 
 interface GeometryHeaderProps {
 	canGenerate: boolean;
-	exportState: GeometryExportState;
-	setExportState: React.Dispatch<React.SetStateAction<GeometryExportState>>;
+	exportState: ExportProps;
+	setExportState: React.Dispatch<React.SetStateAction<ExportProps>>;
 }
 
 export const GeometryHeader: React.FC<GeometryHeaderProps> = ({ canGenerate, exportState, setExportState }) => {
@@ -56,7 +56,7 @@ export const GeometryHeader: React.FC<GeometryHeaderProps> = ({ canGenerate, exp
 							size="lg"
 							className="min-w-42.5 rounded-xl shadow-sm"
 							onClick={() => handleExport(exportState)}
-							disabled={loading || !exportState.svg || !canGenerate}
+							disabled={loading || !exportState.url || !canGenerate}
 						>
 							<Download className="mr-2 size-4" />
 

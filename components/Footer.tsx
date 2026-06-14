@@ -14,9 +14,9 @@ const footerLinks = {
 
 export function Footer() {
 	return (
-		<footer className="border-t border-border py-12 px-4">
+		<footer className="border-t border-border py-3 px-3">
 			<div className="mx-auto max-w-6xl">
-				<div className="grid grid-cols-1 gap-10 md:grid-cols-5 mb-10">
+				<div className="grid grid-cols-1 gap-10 md:grid-cols-5 mb-5">
 					<div className="md:col-span-2">
 						<Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
 							<ToolsLogo width={28} height={28} className="transition-transform duration-200 group-hover:scale-110" />
@@ -34,7 +34,7 @@ export function Footer() {
 								CloudGrids
 							</a>
 						</p>
-						<div className="flex items-center gap-2 mt-5">
+						<div className="flex items-center gap-2 mt-3">
 							{SOCIALS.map(({ icon: Icon, href, label }) => (
 								<a
 									key={label}
@@ -71,7 +71,7 @@ export function Footer() {
 					))}
 				</div>
 
-				<Separator className="mb-6" />
+				<Separator className="mb-3" />
 
 				<div className="flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
 					<p>© {new Date().getFullYear()} Tools. All rights reserved.</p>

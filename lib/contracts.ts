@@ -1,4 +1,4 @@
-import type { GradientType, ToolCategory, ToolIconName } from '@/lib/enumerations';
+import type { Blend, GradientType, ToolCategory, ToolIconName } from '@/lib/enumerations';
 
 export interface Tool {
 	id: string;
@@ -63,4 +63,17 @@ export interface JwtPayload {
 	payload: Record<string, unknown>;
 	signature: string;
 	valid: boolean;
+}
+
+export interface WatermarkProps {
+	text: string;
+	imageUrl?: string;
+	opacity: number;
+	fontSize: number;
+	color: string;
+	angle: number;
+	blend: Blend;
+	position: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+	tiled: boolean;
+	margin: number;
 }

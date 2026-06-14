@@ -105,6 +105,15 @@ export const TOOLS: Tool[] = [
 		category: 'generators',
 		keywords: ['Geometry', 'random-Geometry', 'generate'],
 		isExperimental: true
+	},
+	{
+		id: 'watermark',
+		icon: 'banknote',
+		name: 'Watermark',
+		desc: 'Add watermarks to your images',
+		category: 'generators',
+		keywords: ['watermark', 'image', 'overlay'],
+		isExperimental: true
 	}
 ];
 
