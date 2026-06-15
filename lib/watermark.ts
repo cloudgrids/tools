@@ -1,26 +1,22 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import sharp from 'sharp';
 import type { Blend } from './enumerations';
 
-const FONT_PATH = path.resolve(process.cwd(), 'public/fonts/Inter-Bold.woff2');
+const GOOGLE_FONTS_INTER_BOLD_URL =
+	'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2';
 
-/** Module-level singleton so the file is only read once per process. */
 let _fontDataUri: Promise<string> | null = null;
 
 const getFontDataUri = (): Promise<string> => {
 	if (!_fontDataUri) {
-		_fontDataUri = fs
-			.readFile(FONT_PATH)
-			.then((buf) => `data:font/woff2;base64,${buf.toString('base64')}`)
-			.catch(() => {
-				// Font file missing — fall back to generic family names and hope
-				// for the best. Log a warning so this is visible in prod logs.
-				console.warn(
-					'[watermark] Inter-Bold.woff2 not found at',
-					FONT_PATH,
-					'— text may be invisible in environments without system fonts.'
-				);
+		_fontDataUri = fetch(GOOGLE_FONTS_INTER_BOLD_URL)
+			.then(async (res) => {
+				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				const arrayBuffer = await res.arrayBuffer();
+				const b64 = Buffer.from(arrayBuffer).toString('base64');
+				return `data:font/woff2;base64,${b64}`;
+			})
+			.catch((err) => {
+				console.warn('[watermark] Failed to fetch Inter Bold from Google Fonts:', err?.message);
 				return '';
 			});
 	}
