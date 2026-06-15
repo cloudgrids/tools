@@ -109,20 +109,37 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 		</svg>
 	`;
 
-	console.log('Generated SVG:', svg);
+	// return await sharp(buffer)
+	// 	.composite([
+	// 		{
+	// 			input: Buffer.from(svg),
+	// 			gravity: 'center',
+	// 			blend
+	// 		}
+	// 	])
+	// 	.jpeg({ quality: 100 })
+	// 	.toBuffer();
 
 	return await sharp(buffer)
 		.composite([
 			{
-				input: Buffer.from(svg),
-				gravity: 'center',
-				blend
+				input: {
+					create: {
+						width: 300,
+						height: 300,
+						channels: 4,
+						background: {
+							r: 255,
+							g: 0,
+							b: 0,
+							alpha: 0.8
+						}
+					}
+				},
+				top: 0,
+				left: 0
 			}
 		])
-		.jpeg({ quality: 100 })
-		.toBuffer()
-		.catch((error) => {
-			console.error('Error applying watermark:', error);
-			throw error;
-		});
+		.jpeg()
+		.toBuffer();
 };
