@@ -109,6 +109,8 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 		</svg>
 	`;
 
+	console.log('Generated SVG:', svg);
+
 	return await sharp(buffer)
 		.composite([
 			{
@@ -118,5 +120,9 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 			}
 		])
 		.jpeg({ quality: 100 })
-		.toBuffer();
+		.toBuffer()
+		.catch((error) => {
+			console.error('Error applying watermark:', error);
+			throw error;
+		});
 };

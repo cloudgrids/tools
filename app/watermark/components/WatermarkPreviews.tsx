@@ -81,7 +81,7 @@ export const WatermarkPreviews: React.FC<WatermarkPreviewsProps> = ({
 					}
 
 					const blob = await response.blob();
-					return URL.createObjectURL(blob);
+					return `${URL.createObjectURL(blob)}#${Date.now()}`;
 				})
 			);
 

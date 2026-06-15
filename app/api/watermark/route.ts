@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
 			status: 200,
 			headers: {
 				'Content-Type': 'image/jpeg',
-				'Cache-Control': 'no-store'
+				'Cache-Control': 'no-store, no-cache, must-revalidate',
+				'Pragma': 'no-cache',
+				'Expires': '0',
+				'x-timestamp': Date.now().toString()
 			}
 		});
 	} catch (error) {
