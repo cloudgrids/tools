@@ -1,5 +1,31 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import sharp from 'sharp';
 import type { Blend } from './enumerations';
+
+const FONT_PATH = path.resolve(process.cwd(), 'public/fonts/Inter-Bold.woff2');
+
+/** Module-level singleton so the file is only read once per process. */
+let _fontDataUri: Promise<string> | null = null;
+
+const getFontDataUri = (): Promise<string> => {
+	if (!_fontDataUri) {
+		_fontDataUri = fs
+			.readFile(FONT_PATH)
+			.then((buf) => `data:font/woff2;base64,${buf.toString('base64')}`)
+			.catch(() => {
+				// Font file missing — fall back to generic family names and hope
+				// for the best. Log a warning so this is visible in prod logs.
+				console.warn(
+					'[watermark] Inter-Bold.woff2 not found at',
+					FONT_PATH,
+					'— text may be invisible in environments without system fonts.'
+				);
+				return '';
+			});
+	}
+	return _fontDataUri;
+};
 
 export interface WatermarkProps {
 	text?: string;
@@ -68,6 +94,13 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 		margin = 48
 	} = props;
 
+	// Resolve the embedded font once (cached after first call).
+	const fontDataUri = await getFontDataUri();
+	const fontFamilyName = fontDataUri ? 'WatermarkFont' : 'sans-serif';
+	const fontFaceBlock = fontDataUri
+		? `<defs><style>@font-face{font-family:'WatermarkFont';src:url('${fontDataUri}') format('woff2');font-weight:700;}</style></defs>`
+		: '';
+
 	const metadata = await sharp(buffer).metadata();
 
 	const width = metadata.width ?? 1000;
@@ -89,7 +122,7 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 							fill="${color}"
 							fill-opacity="${opacity}"
 							font-size="${fontSize}"
-							font-family="sans-serif"
+							font-family="${fontFamilyName}"
 							font-weight="700"
 							stroke="#000000"
 							stroke-opacity="${opacity * 0.35}"
@@ -108,6 +141,7 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 			width="${width}"
 			height="${height}"
 		>
+			${fontFaceBlock}
 			${
 				tiled
 					? repeatedWatermarks
@@ -118,7 +152,7 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 							fill="${color}"
 							fill-opacity="${opacity}"
 							font-size="${fontSize}"
-							font-family="sans-serif"
+							font-family="${fontFamilyName}"
 							font-weight="700"
 							stroke="#000000"
 							stroke-opacity="${opacity * 0.35}"
