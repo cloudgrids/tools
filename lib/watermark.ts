@@ -99,7 +99,7 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 					x="${x}"
 					y="${y}"
 					text-anchor="${anchor}"
-					dominant-baseline="${baseline}"
+					alignment-baseline="${baseline}"
 						class="text"
 					>
 						${renderTspans(lines, x, fontSize)}
@@ -109,37 +109,15 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 		</svg>
 	`;
 
-	// return await sharp(buffer)
-	// 	.composite([
-	// 		{
-	// 			input: Buffer.from(svg),
-	// 			gravity: 'center',
-	// 			blend
-	// 		}
-	// 	])
-	// 	.jpeg({ quality: 100 })
-	// 	.toBuffer();
+	const watermarkOverlay = await sharp(Buffer.from(svg)).png().toBuffer();
 
 	return await sharp(buffer)
 		.composite([
 			{
-				input: {
-					create: {
-						width: 300,
-						height: 300,
-						channels: 4,
-						background: {
-							r: 255,
-							g: 0,
-							b: 0,
-							alpha: 0.8
-						}
-					}
-				},
-				top: 0,
-				left: 0
+				input: watermarkOverlay,
+				blend
 			}
 		])
-		.jpeg()
+		.jpeg({ quality: 100 })
 		.toBuffer();
 };
