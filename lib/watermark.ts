@@ -3,7 +3,6 @@ import type { Blend } from './enumerations';
 
 export interface WatermarkProps {
 	text?: string;
-	imageBuffer?: Buffer;
 	fontSize?: number;
 	color?: string;
 	angle?: number;
@@ -17,33 +16,52 @@ export interface WatermarkProps {
 const escapeSvg = (value: string) =>
 	value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-const getTextLines = (value: string) => value.split(/\r?\n/).map((line) => escapeSvg(line || ' '));
-
-const renderTspans = (lines: string[], x: number | string, fontSize: number) =>
-	lines.map((line, index) => `<tspan x="${x}" dy="${index === 0 ? 0 : fontSize * 1.25}">${line}</tspan>`).join('');
-
 const getPosition = (position: WatermarkProps['position'], width: number, height: number, margin: number) => {
 	switch (position) {
 		case 'top-left':
-			return { x: margin, y: margin, anchor: 'start', baseline: 'hanging' };
+			return {
+				x: margin,
+				y: margin + 40,
+				anchor: 'start'
+			};
+
 		case 'top-right':
-			return { x: width - margin, y: margin, anchor: 'end', baseline: 'hanging' };
+			return {
+				x: width - margin,
+				y: margin + 40,
+				anchor: 'end'
+			};
+
 		case 'bottom-left':
-			return { x: margin, y: height - margin, anchor: 'start', baseline: 'auto' };
+			return {
+				x: margin,
+				y: height - margin,
+				anchor: 'start'
+			};
+
 		case 'bottom-right':
-			return { x: width - margin, y: height - margin, anchor: 'end', baseline: 'auto' };
+			return {
+				x: width - margin,
+				y: height - margin,
+				anchor: 'end'
+			};
+
 		default:
-			return { x: width / 2, y: height / 2, anchor: 'middle', baseline: 'middle' };
+			return {
+				x: width / 2,
+				y: height / 2,
+				anchor: 'middle'
+			};
 	}
 };
 
 export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Promise<Buffer> => {
 	const {
 		text = 'Sample Watermark',
-		fontSize = 32,
+		fontSize = 48,
 		color = '#ffffff',
-		angle = 0,
-		opacity = 0.5,
+		angle = -30,
+		opacity = 0.22,
 		blend = 'over',
 		position = 'center',
 		tiled = false,
@@ -54,62 +72,73 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 
 	const width = metadata.width ?? 1000;
 	const height = metadata.height ?? 1000;
-	const lines = getTextLines(text);
 
-	const longestLine = lines.reduce((longest, line) => Math.max(longest, line.length), 0);
-	const resolvedMargin = Math.max(0, margin);
+	const safeText = escapeSvg(text);
 
-	const { x, y, anchor, baseline } = getPosition(position, width, height, resolvedMargin);
+	const { x, y, anchor } = getPosition(position, width, height, margin);
 
-	const tileWidth = Math.max(180, fontSize * Math.max(longestLine * 0.7, 6));
-	const tileHeight = Math.max(120, fontSize * Math.max(lines.length + 2, 4));
+	const repeatedWatermarks = Array.from({ length: Math.ceil(height / 180) + 2 }, (_, row) =>
+		Array.from({ length: Math.ceil(width / 300) + 2 }, (_, col) => {
+			const tx = col * 300 - 200;
+			const ty = row * 180;
+
+			return `
+						<text
+							x="${tx}"
+							y="${ty}"
+							fill="${color}"
+							fill-opacity="${opacity}"
+							font-size="${fontSize}"
+							font-family="sans-serif"
+							font-weight="700"
+							stroke="#000000"
+							stroke-opacity="${opacity * 0.35}"
+							stroke-width="1"
+							transform="rotate(${angle}, ${tx}, ${ty})"
+						>
+							${safeText}
+						</text>
+					`;
+		}).join('')
+	).join('');
 
 	const svg = `
-		<svg width="${width}" height="${height}">
-			<defs>
-				<pattern id="watermark-tile" width="${tileWidth}" height="${tileHeight}" patternUnits="userSpaceOnUse">
-					<text
-						x="${tileWidth / 2}"
-						y="${tileHeight / 2}"
-						text-anchor="middle"
-						dominant-baseline="middle"
-						transform="rotate(${angle}, ${tileWidth / 2}, ${tileHeight / 2})"
-						class="text"
-					>
-						${renderTspans(lines, tileWidth / 2, fontSize)}
-					</text>
-				</pattern>
-			</defs>
-
-			<style>
-				.text {
-					fill: ${color};
-					font-size: ${fontSize}px;
-					font-weight: bold;
-					opacity: ${opacity};
-					font-family: Arial, Helvetica, sans-serif;
-				}
-			</style>
-
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="${width}"
+			height="${height}"
+		>
 			${
 				tiled
-					? `<rect width="100%" height="100%" fill="url(#watermark-tile)" />`
-					: `<g transform="rotate(${angle}, ${x}, ${y})">
-				<text
-					x="${x}"
-					y="${y}"
-					text-anchor="${anchor}"
-					alignment-baseline="${baseline}"
-						class="text"
-					>
-						${renderTspans(lines, x, fontSize)}
-					</text>
-				</g>`
+					? repeatedWatermarks
+					: `
+						<text
+							x="${x}"
+							y="${y}"
+							fill="${color}"
+							fill-opacity="${opacity}"
+							font-size="${fontSize}"
+							font-family="sans-serif"
+							font-weight="700"
+							stroke="#000000"
+							stroke-opacity="${opacity * 0.35}"
+							stroke-width="1"
+							text-anchor="${anchor}"
+							transform="rotate(${angle}, ${x}, ${y})"
+						>
+							${safeText}
+						</text>
+					`
 			}
 		</svg>
 	`;
 
-	const watermarkOverlay = await sharp(Buffer.from(svg)).png().toBuffer();
+	const watermarkOverlay = await sharp(Buffer.from(svg), {
+		density: 300
+	})
+		.resize(width, height)
+		.png()
+		.toBuffer();
 
 	return await sharp(buffer)
 		.composite([
@@ -118,6 +147,8 @@ export const applyWatermark = async (buffer: Buffer, props: WatermarkProps): Pro
 				blend
 			}
 		])
-		.jpeg({ quality: 100 })
+		.jpeg({
+			quality: 100
+		})
 		.toBuffer();
 };
