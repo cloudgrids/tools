@@ -77,7 +77,7 @@ export const WatermarkPreviews: React.FC<WatermarkPreviewsProps> = ({
 					if (!response.ok) {
 						const error = await response.text();
 						console.log('Error response:', error);
-						throw new Error(error || 'Failed to apply watermark');
+						throw new Error('Failed to apply watermark');
 					}
 
 					const blob = await response.blob();
