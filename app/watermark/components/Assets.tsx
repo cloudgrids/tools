@@ -38,7 +38,6 @@ export const Assets: React.FC<AssetsProps> = ({ url, isSelected, onToggleSelect,
 							alt="Asset"
 							fill
 							id={url}
-							style={{ width: 'auto', height: 'auto' }}
 							className={`object-cover transition-transform duration-500 ${!isSelected && 'group-hover:scale-110'}`}
 							sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
 						/>
