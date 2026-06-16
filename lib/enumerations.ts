@@ -1,3 +1,5 @@
+import { ImageWatermarkOptions, TextWatermarkOptions } from './contracts';
+
 export type ToolCategory = 'formatters' | 'generators' | 'converters' | 'utilities';
 
 export type ToolIconName =
@@ -49,3 +51,9 @@ export type Blend =
 	| 'soft-light'
 	| 'difference'
 	| 'exclusion';
+
+export type WatermarkLayer = TextWatermarkOptions | ImageWatermarkOptions;
+
+export type WatermarkPosition = 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+export type OutputFormat = 'jpeg' | 'png' | 'webp';
