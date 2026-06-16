@@ -75,7 +75,6 @@ export const usePopVid = () => {
 			return;
 		}
 
-		setLoading(true);
 		try {
 			const res = await getStatus(session as string);
 
