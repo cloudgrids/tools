@@ -8,15 +8,29 @@ import { WatermarkOptions } from './WatermarkOptions';
 import { WatermarkPreviews } from './WatermarkPreviews';
 
 const defaultOptions: WatermarkProps = {
-	text: 'Sample Watermark',
-	opacity: 0.99,
-	fontSize: 42,
-	color: '#ffffff',
-	angle: 0,
+	// shared
+	mode: 'text',
+	opacity: 0.5,
+	angle: -30,
 	blend: 'over',
 	position: 'center',
 	tiled: false,
-	margin: 48
+	margin: 48,
+	outputFormat: 'jpeg',
+	quality: 100,
+	// text
+	text: 'Sample Watermark',
+	fontSize: 48,
+	color: '#ffffff',
+	strokeWidth: 1,
+	strokeColor: '#000000',
+	// image
+	imageDataUri: undefined,
+	widthRatio: 0.25,
+	grayscale: false,
+	tileGapX: 20,
+	tileGapY: 20,
+	layers: []
 };
 
 export const Watermark = () => {
@@ -54,13 +68,16 @@ export const Watermark = () => {
 					onSelectedAssets={setSelectedAssets}
 					selectedOutputAssets={selectedOutputAssets}
 				/>
-				<WatermarkOptions
-					options={options}
-					onOptionsChange={setOptions}
-					defaultOptions={defaultOptions}
-					selectedOutputAssets={selectedOutputAssets}
-					watermarked={watermarked}
-				/>
+
+				<div className="max-h-[calc(100vh-8rem)] overflow-y-auto rounded-xl">
+					<WatermarkOptions
+						options={options}
+						onOptionsChange={setOptions}
+						defaultOptions={defaultOptions}
+						selectedOutputAssets={selectedOutputAssets}
+						watermarked={watermarked}
+					/>
+				</div>
 			</div>
 		</div>
 	);

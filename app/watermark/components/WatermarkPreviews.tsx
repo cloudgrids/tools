@@ -68,20 +68,25 @@ export const WatermarkPreviews: React.FC<WatermarkPreviewsProps> = ({
 
 			const results = await Promise.all(
 				files.map(async (file) => {
-					const formData = new FormData();
-					formData.append('file', file);
-					formData.append('options', JSON.stringify(options));
+					try {
+						const formData = new FormData();
+						formData.append('file', file);
+						formData.append('options', JSON.stringify(options));
 
-					const response = await fetch('/api/watermark', { method: 'POST', body: formData });
+						const response = await fetch('/api/watermark', { method: 'POST', body: formData });
 
-					if (!response.ok) {
-						const error = await response.text();
-						console.log('Error response:', error);
-						throw new Error('Failed to apply watermark');
+						if (!response.ok) {
+							const error = await response.text();
+							console.log('Error response:', error);
+							throw new Error('Failed to apply watermark');
+						}
+
+						const blob = await response.blob();
+						return `${URL.createObjectURL(blob)}#${Date.now()}`;
+					} catch (error) {
+						console.log('Error processing file:', file.name, error);
+						return URL.createObjectURL(file); // Return original file URL on error
 					}
-
-					const blob = await response.blob();
-					return `${URL.createObjectURL(blob)}#${Date.now()}`;
 				})
 			);
 
