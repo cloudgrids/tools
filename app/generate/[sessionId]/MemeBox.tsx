@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
 import { GenerationHistory } from '@/lib/contracts';
-import { Clapperboard, Loader2, RefreshCw } from 'lucide-react';
+import { Clapperboard, Loader2, RefreshCw, Trash } from 'lucide-react';
 
 interface MemeCardProps {
 	video: GenerationHistory;
@@ -17,9 +17,30 @@ interface MemeCardProps {
 export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const [prompt, setPrompt] = useState<string>('');
 	const { makeMeme, getMEMEStatus, loading } = usePopVid();
-	const { memes } = usePopVidStore();
+	const [selectedSourceId, setSelectedSourceId] = useState<string>('');
+	const { setHistory } = usePopVidStore();
+
+	const deleteMeme = (nodeId: string) => {
+		setHistory((prev) => {
+			const updated = prev.map((item) => {
+				if (item.sessionId === video.sessionId) {
+					return {
+						...item,
+						memes: item.memes?.filter((meme) => meme.nodeId !== nodeId)
+					};
+				}
+				return item;
+			});
+
+			return updated;
+		});
+	};
 
 	const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
+
+	const memes = useMemo(() => {
+		return video.memes || [];
+	}, [video]);
 
 	const sources = useMemo(() => {
 		const rootId = sessionId || video.sessionId.replace(/^ugc_video_/, '');
@@ -37,19 +58,15 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 		];
 	}, [memes, sessionId, video.sessionId]);
 
-	const [sourceId, setSourceId] = useState(() => {
+	const defaultSourceId = useMemo(() => {
 		const latest = [...memes].reverse().find((meme) => meme.videoUrl);
 
-		if (latest?.videoUrl) {
-			const twistId = getTwistId(latest.videoUrl);
+		if (latest?.videoUrl) return getTwistId(latest.videoUrl);
 
-			if (twistId) return twistId;
-		}
+		return sources[0]?.id as string;
+	}, [memes, sources]);
 
-		if (sources.length) return sources[0].id;
-
-		return '';
-	});
+	const currentSourceId = (selectedSourceId || defaultSourceId) as string;
 
 	return (
 		<div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
@@ -79,12 +96,12 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 					<label className="text-sm font-medium">Create Meme</label>
 
 					<select
-						value={sourceId}
-						onChange={(e) => setSourceId(e.target.value)}
+						value={currentSourceId}
+						onChange={(e) => setSelectedSourceId(e.target.value)}
 						className="w-full rounded-md border px-3 py-2 text-sm"
 					>
 						{sources.map((source) => (
-							<option key={source.id} value={source.id}>
+							<option key={`${source.id}_${source.label}`} value={source.id}>
 								{source.label}
 							</option>
 						))}
@@ -94,8 +111,8 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 
 					<Button
 						className="w-full"
-						disabled={!prompt.trim() || loading || !sourceId}
-						onClick={() => makeMeme(prompt, sourceId, video.sessionId)}
+						disabled={!prompt.trim() || loading || !currentSourceId}
+						onClick={() => makeMeme(prompt, currentSourceId, video.sessionId)}
 					>
 						{loading ? (
 							<>
@@ -103,7 +120,7 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 								Generating
 							</>
 						) : (
-							`Create Meme From ${sources.find((s) => s.id === sourceId)?.label ?? 'Source'}`
+							`Create Meme From ${sources.find((s) => s.id === currentSourceId)?.label ?? 'Source'}`
 						)}
 					</Button>
 				</div>
@@ -126,6 +143,11 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 									<Button size="sm" variant="outline" onClick={() => getMEMEStatus(meme.memeId, meme.nodeId)}>
 										<RefreshCw className="mr-2 h-4 w-4" />
 										Refresh
+									</Button>
+
+									<Button size="sm" variant="destructive" onClick={() => deleteMeme(meme.nodeId)}>
+										<Trash className="mr-2 h-4 w-4" />
+										Delete
 									</Button>
 								</div>
 
