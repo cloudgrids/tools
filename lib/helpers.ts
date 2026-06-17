@@ -8,5 +8,6 @@ export const formatBytes = (bytes: number) => {
 	return parseFloat((bytes / Math.pow(base, power)).toFixed(2)) + ' ' + sizes[power];
 };
 
-
 export type Updater<T> = T | ((prev: T) => T);
+
+export const getMemeId = (id: string) => id.match(/^ugc_video_(.*)/i)?.[0] || id;

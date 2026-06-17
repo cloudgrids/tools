@@ -15,9 +15,11 @@ interface MemeCardProps {
 
 export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const [prompt, setPrompt] = useState<string>('');
-	const { makeMeme, getMEMEStatus, loading } = usePopVid();
 	const [selectedSourceId, setSelectedSourceId] = useState<string>('');
-	const { setHistory, setCustomMemes, customMemes } = usePopVidStore();
+	const { makeMeme, getMEMEStatus, loading } = usePopVid();
+	const setHistory = usePopVidStore((s) => s.setHistory);
+	const setCustomMemes = usePopVidStore((s) => s.setCustomMemes);
+	const customMemes = usePopVidStore((s) => s.customMemes);
 
 	const isCustom = !sessionId.includes('ugc_video_');
 
@@ -26,19 +28,19 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 			setCustomMemes((prev) => prev.filter((meme) => meme.nodeId !== nodeId));
 			return;
 		}
-		setHistory((prev) => {
-			const updated = prev.map((item) => {
+
+		setHistory((prev) =>
+			prev.map((item) => {
 				if (item.sessionId === video?.sessionId) {
 					return {
 						...item,
 						memes: item.memes?.filter((meme) => meme.nodeId !== nodeId)
 					};
 				}
-				return item;
-			});
 
-			return updated;
-		});
+				return item;
+			})
+		);
 	};
 
 	const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
@@ -49,6 +51,7 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 
 	const sources = useMemo(() => {
 		const rootId = sessionId || video?.sessionId?.replace(/^ugc_video_/, '');
+
 		return [
 			{
 				id: rootId,
@@ -66,7 +69,9 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const defaultSourceId = useMemo(() => {
 		const latest = [...memes].reverse().find((meme) => meme.videoUrl);
 
-		if (latest?.videoUrl) return getTwistId(latest.videoUrl);
+		if (latest?.videoUrl) {
+			return getTwistId(latest.videoUrl);
+		}
 
 		return sources[0]?.id as string;
 	}, [memes, sources]);
@@ -74,11 +79,11 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const currentSourceId = (selectedSourceId || defaultSourceId) as string;
 
 	return (
-		<div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+		<div className="w-full overflow-hidden rounded-2xl border bg-card shadow-sm">
 			<div className="border-b p-4">
-				<div className="flex items-start justify-between">
-					<div className="min-w-0">
-						<h3 className="truncate text-sm font-semibold">{video?.sessionId}</h3>
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+					<div className="min-w-0 flex-1">
+						<h3 className="break-all text-sm font-semibold">{video?.sessionId}</h3>
 
 						{isCustom && (
 							<p className="mt-1 text-xs text-muted-foreground">
@@ -96,20 +101,20 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 				</div>
 			</div>
 
-			<div className="space-y-4 p-4">
+			<div className="space-y-4 p-3 sm:p-4 md:p-5">
 				{video?.videoUrl && (
 					<div className="overflow-hidden rounded-xl border bg-black">
-						<video src={video.videoUrl} controls className="aspect-video w-full" />
+						<video src={video.videoUrl} controls className="aspect-video w-full object-contain" />
 					</div>
 				)}
 
-				<div className="space-y-3">
+				<div className="w-full space-y-3">
 					<label className="text-sm font-medium">Create Meme</label>
 
 					<select
 						value={currentSourceId}
 						onChange={(e) => setSelectedSourceId(e.target.value)}
-						className="w-full rounded-md border px-3 py-2 text-sm"
+						className="w-full rounded-md border bg-background px-3 py-2 text-sm"
 					>
 						{sources.map((source) => (
 							<option key={`${source.id}_${source.label}`} value={source.id}>
@@ -118,10 +123,15 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 						))}
 					</select>
 
-					<Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Enter a meme prompt..." />
+					<Input
+						value={prompt}
+						onChange={(e) => setPrompt(e.target.value)}
+						placeholder="Enter a meme prompt..."
+						className="w-full"
+					/>
 
 					<Button
-						className="w-full"
+						className="w-full whitespace-normal wrap-break-word"
 						disabled={!prompt.trim() || loading || !currentSourceId}
 						onClick={() => makeMeme(prompt, currentSourceId, video?.sessionId || (sessionId as string), isCustom)}
 					>
@@ -141,43 +151,61 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 						<h3 className="text-sm font-medium">Generated Memes ({memes.length})</h3>
 
 						{[...memes].reverse().map((meme, index) => (
-							<div key={meme.nodeId} className="rounded-xl border bg-muted/40 p-4">
-								<div className="mb-3 flex items-center justify-between">
-									<div>
+							<div key={meme.nodeId} className="rounded-xl border bg-muted/40 p-3 sm:p-4">
+								<div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+									<div className="min-w-0 flex-1">
 										<p className="font-medium">Meme #{memes.length - index}</p>
 
-										{meme.prompt && <p className="text-xs text-muted-foreground">{meme.prompt}</p>}
+										{meme.prompt && <p className="wrap-break-word text-xs text-muted-foreground">{meme.prompt}</p>}
 
 										<p className="text-xs text-muted-foreground">Status: {meme.status}</p>
-										<p className="text-xs text-muted-foreground">Node ID: {meme.nodeId}</p>
+
+										<p className="break-all text-xs text-muted-foreground">Node ID: {meme.nodeId}</p>
 									</div>
 
-									<div className="flex flex-row space-x-2">
+									<div className="flex flex-wrap gap-2">
 										<Button
 											size="sm"
 											variant="outline"
+											className="flex-1 sm:flex-none"
 											onClick={() => getMEMEStatus(meme.memeId, meme.nodeId, isCustom)}
 										>
 											<RefreshCw className="mr-2 h-4 w-4" />
 											Refresh
 										</Button>
 
-										<Button size="sm" variant="destructive" onClick={() => deleteMeme(meme.nodeId)}>
+										<Button
+											size="sm"
+											variant="destructive"
+											className="flex-1 sm:flex-none"
+											onClick={() => deleteMeme(meme.nodeId)}
+										>
 											<Trash className="mr-2 h-4 w-4" />
 											Delete
 										</Button>
 									</div>
 								</div>
 
-								<div className="grid grid-cols-2 content-center text-center gap-4">
-									<div className="flex flex-col gap-2">
-										<p className="text-xs text-muted-foreground">Low Res URL: {meme.videoUrl}</p>
-										{meme.videoUrl && <video src={meme.videoUrl} controls className="aspect-video w-full rounded-lg" />}
+								<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+									<div className="flex min-w-0 flex-col gap-2">
+										<p className="break-all text-left text-xs text-muted-foreground">Low Res URL: {meme.videoUrl}</p>
+
+										{meme.videoUrl && (
+											<video src={meme.videoUrl} controls className="aspect-video w-full rounded-lg object-contain" />
+										)}
 									</div>
-									<div className="flex flex-col gap-2">
-										<p className="text-xs text-muted-foreground">High Res URL(Default): {meme.highResUrl}</p>
+
+									<div className="flex min-w-0 flex-col gap-2">
+										<p className="break-all text-left text-xs text-muted-foreground">
+											High Res URL (Default): {meme.highResUrl}
+										</p>
+
 										{meme.highResUrl && (
-											<video src={meme.highResUrl} controls className="aspect-video w-full rounded-lg" />
+											<video
+												src={meme.highResUrl}
+												controls
+												className="aspect-video w-full rounded-lg object-contain"
+											/>
 										)}
 									</div>
 								</div>

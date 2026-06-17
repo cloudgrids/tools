@@ -9,8 +9,7 @@ interface MemesProps {
 }
 
 export const Memes = ({ sessionId }: MemesProps) => {
-	const { history } = usePopVidStore();
-
+	const history = usePopVidStore((s) => s.history);
 	const video = history.find((item) => item.sessionId === `ugc_video_${sessionId}` || item.sessionId === sessionId);
 
 	return (
