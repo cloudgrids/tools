@@ -148,7 +148,7 @@ export const FullscreenViewer = ({
 					className="absolute inset-0 pointer-events-none blur-[120px] saturate-200 scale-150"
 				>
 					{currentItem.url && (
-						<Image src={currentItem.url} alt="" className="h-full w-full object-cover" width={300} height={400} />
+						<Image src={currentItem.url} alt="" className="object-cover" width={300} height={400} />
 					)}
 				</motion.div>
 			</AnimatePresence>
@@ -293,7 +293,7 @@ export const FullscreenViewer = ({
 							{item.type.toUpperCase() === 'VIDEO' ? (
 								<video controls={false} autoPlay={false} src={item.url} className="h-full w-full object-cover" />
 							) : (
-								<Image src={item.url} alt="" className="h-full w-full object-cover" width={300} height={400} />
+								<Image src={item.url} alt="" className="object-cover" width={300} height={400} />
 							)}
 							{item.type.toUpperCase() === 'VIDEO' ? (
 								<div className="absolute inset-0 flex items-center justify-center bg-black/20">

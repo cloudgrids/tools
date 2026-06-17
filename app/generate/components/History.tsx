@@ -16,28 +16,55 @@ import { GenerationHistory } from '@/lib/contracts';
 import { Clock, Copy, Download, RefreshCw, Search, Trash2, Video } from 'lucide-react';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 export const History = () => {
-	const { history } = usePopVidStore();
+	const { history, setHistory, setUploadResult, setGenerateInput, setGenerateResult, setVideoStatus } = usePopVidStore();
 	const [search, setSearch] = useState<string>('');
 	const [filter, setFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const filteredHistory = useMemo(() => {
 		return history.filter((item) => {
 			const matchesSearch = item.videoPrompt.toLowerCase().includes(search.toLowerCase());
-
 			const matchesFilter = filter === 'all' ? true : item.status?.toLowerCase() === filter;
-
 			return matchesSearch && matchesFilter;
 		});
 	}, [history, search, filter]);
 
 	const completed = history.filter((item) => item.status?.toLowerCase() === 'completed').length;
-
 	const getImageUrl = (item: GenerationHistory) => `https://storage.googleapis.com/${item.imageBucket}/${item.imagePath}`;
 
+	const handleRetry = (item: GenerationHistory) => {
+		setGenerateInput({
+			videoPrompt: item.videoPrompt,
+			token: item.token,
+			imageBucket: item.imageBucket,
+			imagePath: item.imagePath
+		});
+
+		setGenerateResult({
+			sessionId: item.sessionId,
+			status: item.status
+		});
+
+		setVideoStatus({
+			status: item.status,
+			videoUrl: item.videoUrl
+		});
+
+		setUploadResult({
+			bucket: item.imageBucket,
+			imageUrl: getImageUrl(item),
+			path: item.imagePath,
+			success: !!item.status
+		});
+		setIsOpen(false);
+		toast.success('Prompt loaded. You can now generate the video again.');
+	};
+
 	return (
-		<Sheet>
+		<Sheet onOpenChange={(open) => setIsOpen(open)} open={!!isOpen}>
 			<SheetTrigger render={<Button variant="outline" />}>History</SheetTrigger>
 
 			<SheetContent className="w-full sm:max-w-xl md:max-w-3xl lg:max-w-5xl">
@@ -95,41 +122,24 @@ export const History = () => {
 						filteredHistory.map((item, index) => (
 							<div key={index} className="rounded-xl border overflow-hidden hover:bg-muted/40 transition">
 								<div className="grid grid-cols-1">
-									{/* Preview Section */}
 									<div className="border-r bg-muted/20 p-3">
 										<div className="grid grid-cols-2 gap-3">
-											{/* Source Image */}
 											<div>
 												<p className="text-xs font-medium mb-2 text-muted-foreground">Source Image</p>
 
-												<Image
-													className="w-full aspect-video object-cover rounded-md border"
-													src={getImageUrl(item)}
-													alt="Source"
-													loading="lazy"
-													width={300}
-													height={400}
-												/>
+												<Image src={getImageUrl(item)} alt="Source" loading="lazy" width={300} height={400} />
 											</div>
 
-											{/* Generated Video */}
 											{item.videoUrl && (
 												<div>
 													<p className="text-xs font-medium mb-2 text-muted-foreground">Generated Video</p>
 
-													<video
-														className="w-full aspect-video object-cover rounded-md border"
-														src={item.videoUrl}
-														muted
-														controls
-														preload="metadata"
-													/>
+													<video src={item.videoUrl} muted controls preload="metadata" />
 												</div>
 											)}
 										</div>
 									</div>
 
-									{/* Content */}
 									<div className="p-4 space-y-4">
 										<div>
 											<p className="font-medium line-clamp-3">{item.videoPrompt}</p>
@@ -184,12 +194,16 @@ export const History = () => {
 												</>
 											)}
 
-											<Button size="sm" variant="outline">
+											<Button size="sm" variant="outline" onClick={() => handleRetry(item)}>
 												<RefreshCw className="h-4 w-4 mr-2" />
 												Retry
 											</Button>
 
-											<Button size="sm" variant="destructive">
+											<Button
+												size="sm"
+												variant="destructive"
+												onClick={() => setHistory((prev) => prev.filter((h) => h.sessionId !== item.sessionId))}
+											>
 												<Trash2 className="h-4 w-4 mr-2" />
 												Delete
 											</Button>
