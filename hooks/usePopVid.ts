@@ -7,7 +7,7 @@ import { usePopVidStore } from './popvid.store';
 
 export const usePopVid = () => {
 	const [loading, setLoading] = useState<boolean>(false);
-	const { generateResult, uploadResult, setGenerateResult, setUploadResult, setVideoStatus, generateInput, setHistory } =
+	const { generateResult, uploadResult, setGenerateResult, setUploadResult, setVideoStatus, generateInput, setHistory, setCustomMemes } =
 		usePopVidStore();
 
 	const setAuthCookie = (key: string, data: string, options: OptionsType) => {
@@ -96,7 +96,7 @@ export const usePopVid = () => {
 		}
 	};
 
-	const makeMeme = async (prompt: string, memeId: string, sessionId: string): Promise<void> => {
+	const makeMeme = async (prompt: string, memeId: string, sessionId: string, isCustom: boolean = false): Promise<void> => {
 		setLoading(true);
 
 		if (!prompt || !memeId || !sessionId) {
@@ -113,16 +113,22 @@ export const usePopVid = () => {
 
 			const newMeme = { memeId, status: res.status, nodeId: res.nodeId, prompt } satisfies MemeStatus;
 
-			setHistory((prev) =>
-				prev.map((item) =>
-					item.sessionId === sessionId
-						? {
-								...item,
-								memes: [...(item.memes ?? []), newMeme]
-							}
-						: item
-				)
-			);
+			if (isCustom) {
+				setCustomMemes((prev) => [...prev, { ...newMeme }]);
+			} else {
+				setHistory((prev) =>
+					prev.map((item) =>
+						item.sessionId === sessionId
+							? {
+									...item,
+									memes: [...(item.memes ?? []), newMeme]
+								}
+							: item
+					)
+				);
+			}
+
+			await getMEMEStatus(memeId, res.nodeId, isCustom);
 		} catch (error) {
 			toast.error('Failed to generate meme with PopVid');
 			console.error('Error generating meme with PopVid:', error instanceof Error ? error.message : error);
@@ -131,23 +137,29 @@ export const usePopVid = () => {
 		}
 	};
 
-	const getMEMEStatus = async (memeId: string, nodeId: string): Promise<void> => {
+	const getMEMEStatus = async (memeId: string, nodeId: string, isCustom: boolean = false): Promise<void> => {
 		try {
 			const res = await getMemeStatus(memeId, nodeId);
 
-			setHistory((prev) =>
-				prev.map((item) => {
-					if (item.memes) {
-						return {
-							...item,
-							memes: item.memes.map((meme) =>
-								meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl } : meme
-							)
-						};
-					}
-					return item;
-				})
-			);
+			if (isCustom) {
+				setCustomMemes((prev) =>
+					prev.map((meme) => (meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl } : meme))
+				);
+			} else {
+				setHistory((prev) =>
+					prev.map((item) => {
+						if (item.memes) {
+							return {
+								...item,
+								memes: item.memes.map((meme) =>
+									meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl } : meme
+								)
+							};
+						}
+						return item;
+					})
+				);
+			}
 		} catch (error) {
 			toast.error('Failed to get meme status from PopVid');
 			console.error('Error getting meme status from PopVid:', error instanceof Error ? error.message : error);

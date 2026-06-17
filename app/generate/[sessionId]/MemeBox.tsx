@@ -10,7 +10,7 @@ import { GenerationHistory } from '@/lib/contracts';
 import { Clapperboard, Loader2, RefreshCw, Trash } from 'lucide-react';
 
 interface MemeCardProps {
-	video: GenerationHistory;
+	video?: GenerationHistory;
 	sessionId: string;
 }
 
@@ -18,12 +18,14 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const [prompt, setPrompt] = useState<string>('');
 	const { makeMeme, getMEMEStatus, loading } = usePopVid();
 	const [selectedSourceId, setSelectedSourceId] = useState<string>('');
-	const { setHistory } = usePopVidStore();
+	const { setHistory, setCustomMemes, customMemes } = usePopVidStore();
+
+	console.log('Session ID:', sessionId);
 
 	const deleteMeme = (nodeId: string) => {
 		setHistory((prev) => {
 			const updated = prev.map((item) => {
-				if (item.sessionId === video.sessionId) {
+				if (item.sessionId === video?.sessionId) {
 					return {
 						...item,
 						memes: item.memes?.filter((meme) => meme.nodeId !== nodeId)
@@ -34,16 +36,17 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 
 			return updated;
 		});
+		setCustomMemes((prev) => prev.filter((meme) => meme.nodeId !== nodeId));
 	};
 
 	const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
 
 	const memes = useMemo(() => {
-		return video.memes || [];
-	}, [video]);
+		return video?.memes || customMemes || [];
+	}, [video, customMemes]);
 
 	const sources = useMemo(() => {
-		const rootId = sessionId || video.sessionId.replace(/^ugc_video_/, '');
+		const rootId = sessionId || video?.sessionId?.replace(/^ugc_video_/, '');
 		return [
 			{
 				id: rootId,
@@ -56,7 +59,7 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 					label: `Meme #${index + 1}`
 				}))
 		];
-	}, [memes, sessionId, video.sessionId]);
+	}, [memes, sessionId, video?.sessionId]);
 
 	const defaultSourceId = useMemo(() => {
 		const latest = [...memes].reverse().find((meme) => meme.videoUrl);
@@ -67,17 +70,26 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	}, [memes, sources]);
 
 	const currentSourceId = (selectedSourceId || defaultSourceId) as string;
+	const isCustom = !sessionId.includes('ugc_video_');
+
+	console.log('Current Source ID:', currentSourceId);
 
 	return (
 		<div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
 			<div className="border-b p-4">
 				<div className="flex items-start justify-between">
 					<div className="min-w-0">
-						<h3 className="truncate text-sm font-semibold">{video.sessionId}</h3>
+						<h3 className="truncate text-sm font-semibold">{video?.sessionId}</h3>
+
+						{isCustom && (
+							<p className="mt-1 text-xs text-muted-foreground">
+								Custom Meme Session: <span className="font-medium">{sessionId}</span>
+							</p>
+						)}
 
 						<p className="mt-1 text-xs text-muted-foreground">
 							Status:
-							<span className="ml-1 font-medium">{video.status}</span>
+							<span className="ml-1 font-medium">{video?.status}</span>
 						</p>
 					</div>
 
@@ -86,7 +98,7 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 			</div>
 
 			<div className="space-y-4 p-4">
-				{video.videoUrl && (
+				{video?.videoUrl && (
 					<div className="overflow-hidden rounded-xl border bg-black">
 						<video src={video.videoUrl} controls className="aspect-video w-full" />
 					</div>
@@ -112,7 +124,7 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 					<Button
 						className="w-full"
 						disabled={!prompt.trim() || loading || !currentSourceId}
-						onClick={() => makeMeme(prompt, currentSourceId, video.sessionId)}
+						onClick={() => makeMeme(prompt, currentSourceId, video?.sessionId || (sessionId as string), isCustom)}
 					>
 						{loading ? (
 							<>
@@ -138,9 +150,11 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 										{meme.prompt && <p className="text-xs text-muted-foreground">{meme.prompt}</p>}
 
 										<p className="text-xs text-muted-foreground">Status: {meme.status}</p>
+										<p className="text-xs text-muted-foreground">Node ID: {meme.nodeId}</p>
+
 									</div>
 
-									<Button size="sm" variant="outline" onClick={() => getMEMEStatus(meme.memeId, meme.nodeId)}>
+									<Button size="sm" variant="outline" onClick={() => getMEMEStatus(meme.memeId, meme.nodeId, isCustom)}>
 										<RefreshCw className="mr-2 h-4 w-4" />
 										Refresh
 									</Button>

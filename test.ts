@@ -52,7 +52,7 @@ export const getMemeStatus = async (memeId: string, nodeId: string): Promise<Mem
 			headers: await getHeaders()
 		});
 
-		if (!res.ok) throw new Error('Failed to get meme status');
+		if (!res.ok) throw new Error('Failed to get meme status', { cause: await res.text() });
 
 		return (await res.json()) as MemeStatus;
 	} catch (error) {
@@ -62,7 +62,7 @@ export const getMemeStatus = async (memeId: string, nodeId: string): Promise<Mem
 };
 
 async function test() {
-	const memeId = '20260615124623_676094';
+
 	// const prompt =
 	// 	'She instinctively reaches across her shoulder, grabbing one of the thin dress straps and pulling sharply as she tries to regain her balance.';
 	// const memeOutput = await createMeme(prompt, memeId);
@@ -73,7 +73,7 @@ async function test() {
 	// 	console.log('Meme Status:', memeStatus);
 	// }
 
-	const memeStatus = await getMemeStatus(memeId, 'ZPIJOIbmFYpruPHLQhyV');
+	const memeStatus = await getMemeStatus('20260617091454_711776', '6W9gd4M2oaGCh7RE4Nua');
 	console.log('Meme Status:', memeStatus);
 }
 

@@ -98,7 +98,7 @@ export const getStatus = async (sessionId: string): Promise<GenerateResult> => {
 	try {
 		const res = await fetch(`https://popvid.ai/api/v3/ugc/video/${sessionId}/status`, { method: 'GET', headers: await getHeaders() });
 
-		if (!res.ok) throw new Error('Failed to get video status');
+		if (!res.ok) throw new Error('Failed to get video status', { cause: await res.text() });
 
 		return (await res.json()) as GenerateResult;
 	} catch (error) {
@@ -120,7 +120,7 @@ export const createMeme = async (prompt: string, memeId: string, sessionId: stri
 			body: JSON.stringify({ textPrompt: prompt })
 		});
 
-		if (!res.ok) throw new Error('Failed to create meme');
+		if (!res.ok) throw new Error('Failed to create meme', { cause: await res.text() });
 
 		return (await res.json()) as MemeOutput;
 	} catch (error) {
@@ -141,7 +141,7 @@ export const getMemeStatus = async (memeId: string, nodeId: string): Promise<Mem
 			headers: await getHeaders()
 		});
 
-		if (!res.ok) throw new Error('Failed to get meme status');
+		if (!res.ok) throw new Error('Failed to get meme status', { cause: await res.text() });
 
 		return (await res.json()) as MemeStatus;
 	} catch (error) {

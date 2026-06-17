@@ -26,6 +26,7 @@ export const History = () => {
 	const [filter, setFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const router = useRouter();
+	const [customMemeSessionId, setCustomMemeSessionId] = useState<string>('');
 
 	const filteredHistory = useMemo(() => {
 		return history.filter((item) => {
@@ -113,6 +114,17 @@ export const History = () => {
 								{status}
 							</Button>
 						))}
+					</div>
+
+					<div className="relative justify-center align-center">
+						<Input value={customMemeSessionId} onChange={(e) => setCustomMemeSessionId(e.target.value)} className="pl-9" />
+						<Button
+							className="absolute right-3 top-2 cursor-pointer h-4 w-4 text-muted-foreground"
+							variant={'destructive'}
+							onClick={() => router.push(`generate/${customMemeSessionId}`)}
+						>
+							<Sparkles className="h-4 w-4" />
+						</Button>
 					</div>
 				</SheetHeader>
 

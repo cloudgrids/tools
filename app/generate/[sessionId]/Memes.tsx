@@ -13,14 +13,12 @@ export const Memes = ({ sessionId }: MemesProps) => {
 
 	const video = history.find((item) => item.sessionId === `ugc_video_${sessionId}` || item.sessionId === sessionId);
 
-	if (!video) return <div className="rounded-lg border p-8 text-center">Video not found</div>;
-
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl font-bold">Create Meme</h1>
-					<p className="text-muted-foreground">Session: {video.sessionId}</p>
+					<p className="text-muted-foreground">Session: {video?.sessionId}</p>
 				</div>
 
 				<History />
