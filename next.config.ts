@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
 		serverActions: {
 			bodySizeLimit: '10mb'
 		}
+	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'storage.googleapis.com'
+			}
+		]
 	}
 };
 

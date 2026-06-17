@@ -6,13 +6,14 @@ import { usePopVidStore } from './popvid.store';
 
 export const usePopVid = () => {
 	const [loading, setLoading] = useState<boolean>(false);
-	const { generateResult, uploadResult, setGenerateResult, setUploadResult, setVideoStatus, generateInput } = usePopVidStore();
+	const { generateResult, uploadResult, setGenerateResult, setUploadResult, setVideoStatus, generateInput, setHistory } =
+		usePopVidStore();
 
 	const setAuthCookie = (key: string, data: string, options: OptionsType) => {
 		setCookie(key, data, {
 			...options,
 			path: '/',
-			domain: process.env.NODE_ENV === 'production' ? 'tools.cloudgrids.tech' : 'localhost',
+			domain: process.env.NEXT_PUBLIC_NODE_ENV === 'production' ? 'tools.cloudgrids.tech' : 'localhost',
 			sameSite: 'none',
 			secure: true,
 			expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
@@ -47,19 +48,23 @@ export const usePopVid = () => {
 			return;
 		}
 
+		const payload = {
+			imageBucket: uploadResult?.bucket as string,
+			imagePath: uploadResult?.path as string,
+			videoPrompt: prompt,
+			token: generateInput?.token || ''
+		};
+
 		try {
-			const res = await generate({
-				imageBucket: uploadResult?.bucket as string,
-				imagePath: uploadResult?.path as string,
-				videoPrompt: prompt,
-				token: generateInput?.token || ''
-			});
+			const res = await generate(payload);
 
 			setGenerateResult(res);
 
 			toast.success('Video generation started with PopVid');
 
 			await getVideoStatus(res.sessionId);
+
+			setHistory((prev) => [...prev, { ...payload, ...res }]);
 		} catch (error) {
 			toast.error('Failed to generate video with PopVid');
 			console.error('Error generating video with PopVid:', error instanceof Error ? error.message : error);
@@ -77,6 +82,10 @@ export const usePopVid = () => {
 
 		try {
 			const res = await getStatus(session as string);
+
+			setHistory((prev) =>
+				prev.map((item) => (item.sessionId === session ? { ...item, status: res.status, videoUrl: res.videoUrl } : item))
+			);
 
 			setVideoStatus(res);
 		} catch (error) {

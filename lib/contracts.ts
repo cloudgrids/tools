@@ -173,3 +173,5 @@ export interface GenerateResult {
 	status: string;
 	videoUrl?: string;
 }
+
+export interface GenerationHistory extends GenerateResult, GenerateInput, GenerateOutput {}

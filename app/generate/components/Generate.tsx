@@ -9,6 +9,7 @@ import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
 import Image from 'next/image';
 import { useState } from 'react';
+import { History } from './History';
 
 interface FileProps {
 	file: File;
@@ -33,6 +34,7 @@ export const Generate = () => {
 		<div className="min-h-screen">
 			<div className="max-w-4xl mx-auto p-8 space-y-6">
 				<h1 className="text-4xl font-bold">AI Video Generator</h1>
+				<History />
 
 				<div className="rounded-xl p-5 shadow">
 					<Label className="block text-sm font-medium mb-2">Access Token</Label>
