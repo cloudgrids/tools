@@ -21,12 +21,23 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 export const History = () => {
-	const { history, setHistory, setUploadResult, setGenerateInput, setGenerateResult, setVideoStatus, generateResult } = usePopVidStore();
+	const {
+		history,
+		setHistory,
+		setUploadResult,
+		setGenerateInput,
+		setGenerateResult,
+		setVideoStatus,
+		generateResult,
+		customMemes,
+		setCustomMemes
+	} = usePopVidStore();
 	const [search, setSearch] = useState<string>('');
 	const [filter, setFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const router = useRouter();
 	const [customMemeSessionId, setCustomMemeSessionId] = useState<string>('');
+	const [view, setView] = useState<'video' | 'meme'>('video');
 
 	const filteredHistory = useMemo(() => {
 		return history.filter((item) => {
@@ -114,6 +125,10 @@ export const History = () => {
 								{status}
 							</Button>
 						))}
+
+						<Button size="sm" variant={'outline'} onClick={() => setView(view === 'video' ? 'meme' : 'video')}>
+							{view === 'video' ? 'View Memes' : 'View Videos'}
+						</Button>
 					</div>
 
 					<div className="relative justify-center align-center">
@@ -129,34 +144,143 @@ export const History = () => {
 				</SheetHeader>
 
 				<div className="space-y-4 max-h-[70vh] overflow-y-auto">
-					{filteredHistory.length === 0 ? (
-						<div className="flex flex-col items-center justify-center py-16 text-center">
-							<Video className="h-12 w-12 text-muted-foreground mb-4" />
-							<p className="font-medium">No generations found</p>
-							<p className="text-sm text-muted-foreground">Try changing filters or create a video.</p>
-						</div>
+					{view === 'video' ? (
+						filteredHistory.length === 0 ? (
+							<div className="flex flex-col items-center justify-center py-16 text-center">
+								<Video className="h-12 w-12 text-muted-foreground mb-4" />
+								<p className="font-medium">No generations found</p>
+								<p className="text-sm text-muted-foreground">Try changing filters or create a video.</p>
+							</div>
+						) : (
+							filteredHistory.map((item, index) => (
+								<div
+									key={index}
+									className={cn(
+										'rounded-xl border overflow-hidden hover:bg-muted/40 transition',
+										generateResult?.sessionId === item.sessionId ? 'bg-slate-300' : ''
+									)}
+								>
+									<div className="grid grid-cols-1">
+										<div className="border-r bg-muted/20 p-3">
+											<div className="grid grid-cols-2 gap-3">
+												<div>
+													<p className="text-xs font-medium mb-2 text-muted-foreground">Source Image</p>
+
+													<Image src={getImageUrl(item)} alt="Source" loading="lazy" width={300} height={400} />
+												</div>
+
+												{item.videoUrl && (
+													<div>
+														<p className="text-xs font-medium mb-2 text-muted-foreground">Generated Video</p>
+
+														<video src={item.videoUrl} muted controls preload="metadata" />
+													</div>
+												)}
+											</div>
+										</div>
+
+										<div className="p-4 space-y-4">
+											<div>
+												<p className="font-medium line-clamp-3">{item.videoPrompt}</p>
+
+												<div className="flex gap-2 mt-3 flex-wrap">
+													<Badge variant={item.status === 'completed' ? 'default' : 'secondary'}>
+														{item.status ?? 'pending'}
+													</Badge>
+
+													<Badge variant="outline">{item.sessionId.slice(0, 12)}</Badge>
+												</div>
+											</div>
+
+											<div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
+												<Button
+													size="sm"
+													variant="outline"
+													onClick={() => navigator.clipboard.writeText(item.videoPrompt)}
+												>
+													<Copy className="h-4 w-4 mr-2" />
+													Copy
+												</Button>
+
+												<Button
+													nativeButton={false}
+													size="sm"
+													variant="outline"
+													render={<a href={getImageUrl(item)} target="_blank" />}
+												>
+													Image
+												</Button>
+
+												{item.videoUrl && (
+													<>
+														<Button
+															nativeButton={false}
+															size="sm"
+															render={<a href={item.videoUrl} target="_blank" />}
+														>
+															View Video
+														</Button>
+
+														<Button
+															nativeButton={false}
+															size="sm"
+															variant="outline"
+															render={<a href={item.videoUrl} download />}
+														>
+															<Download className="h-4 w-4 mr-2" />
+															Download
+														</Button>
+													</>
+												)}
+
+												<Button size="sm" variant="outline" onClick={() => handleRetry(item)}>
+													<RefreshCw className="h-4 w-4 mr-2" />
+													Retry
+												</Button>
+
+												<Button
+													size="sm"
+													variant="destructive"
+													onClick={() => setHistory((prev) => prev.filter((h) => h.sessionId !== item.sessionId))}
+												>
+													<Trash2 className="h-4 w-4 mr-2" />
+													Delete
+												</Button>
+
+												<Button
+													size="sm"
+													variant="destructive"
+													onClick={() => router.push(`/generate/${getMemeId(item.sessionId)}`)}
+												>
+													<Sparkles className="h-4 w-4 mr-2" />
+													Make Meme
+												</Button>
+											</div>
+
+											<div className="flex items-center gap-2 text-xs text-muted-foreground">
+												<Clock className="h-3 w-3" />
+												Session: {item.sessionId}
+											</div>
+										</div>
+									</div>
+								</div>
+							))
+						)
 					) : (
-						filteredHistory.map((item, index) => (
-							<div
-								key={index}
-								className={cn(
-									'rounded-xl border overflow-hidden hover:bg-muted/40 transition',
-									generateResult?.sessionId === item.sessionId ? 'bg-slate-300' : ''
-								)}
-							>
+						customMemes?.map((item, index) => (
+							<div key={index} className={cn('rounded-xl border overflow-hidden hover:bg-muted/40 transition')}>
 								<div className="grid grid-cols-1">
 									<div className="border-r bg-muted/20 p-3">
 										<div className="grid grid-cols-2 gap-3">
-											<div>
-												<p className="text-xs font-medium mb-2 text-muted-foreground">Source Image</p>
-
-												<Image src={getImageUrl(item)} alt="Source" loading="lazy" width={300} height={400} />
-											</div>
-
+											{item.highResUrl && (
+												<div>
+													<p className="text-xs font-medium mb-2 text-muted-foreground">High Res Video</p>
+													<video src={item.highResUrl} muted controls preload="metadata" />
+												</div>
+											)}
 											{item.videoUrl && (
 												<div>
-													<p className="text-xs font-medium mb-2 text-muted-foreground">Generated Video</p>
-
+													<p className="text-xs font-medium mb-2 text-muted-foreground">Low Res Video</p>
 													<video src={item.videoUrl} muted controls preload="metadata" />
 												</div>
 											)}
@@ -165,34 +289,21 @@ export const History = () => {
 
 									<div className="p-4 space-y-4">
 										<div>
-											<p className="font-medium line-clamp-3">{item.videoPrompt}</p>
+											<p className="font-medium line-clamp-3">{item.prompt}</p>
 
 											<div className="flex gap-2 mt-3 flex-wrap">
 												<Badge variant={item.status === 'completed' ? 'default' : 'secondary'}>
 													{item.status ?? 'pending'}
 												</Badge>
 
-												<Badge variant="outline">{item.sessionId.slice(0, 12)}</Badge>
+												<Badge variant="outline">{item.memeId}</Badge>
 											</div>
 										</div>
 
 										<div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
-											<Button
-												size="sm"
-												variant="outline"
-												onClick={() => navigator.clipboard.writeText(item.videoPrompt)}
-											>
+											<Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(item.prompt)}>
 												<Copy className="h-4 w-4 mr-2" />
 												Copy
-											</Button>
-
-											<Button
-												nativeButton={false}
-												size="sm"
-												variant="outline"
-												render={<a href={getImageUrl(item)} target="_blank" />}
-											>
-												Image
 											</Button>
 
 											{item.videoUrl && (
@@ -217,15 +328,10 @@ export const History = () => {
 												</>
 											)}
 
-											<Button size="sm" variant="outline" onClick={() => handleRetry(item)}>
-												<RefreshCw className="h-4 w-4 mr-2" />
-												Retry
-											</Button>
-
 											<Button
 												size="sm"
 												variant="destructive"
-												onClick={() => setHistory((prev) => prev.filter((h) => h.sessionId !== item.sessionId))}
+												onClick={() => setCustomMemes((prev) => prev.filter((h) => h.memeId !== item.memeId))}
 											>
 												<Trash2 className="h-4 w-4 mr-2" />
 												Delete
@@ -234,7 +340,7 @@ export const History = () => {
 											<Button
 												size="sm"
 												variant="destructive"
-												onClick={() => router.push(`/generate/${getMemeId(item.sessionId)}`)}
+												onClick={() => router.push(`/generate/${getMemeId(item.memeId)}`)}
 											>
 												<Sparkles className="h-4 w-4 mr-2" />
 												Make Meme
@@ -243,7 +349,7 @@ export const History = () => {
 
 										<div className="flex items-center gap-2 text-xs text-muted-foreground">
 											<Clock className="h-3 w-3" />
-											Session: {item.sessionId}
+											Session: {item.memeId}
 										</div>
 									</div>
 								</div>

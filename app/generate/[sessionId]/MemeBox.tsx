@@ -150,24 +150,37 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 
 										<p className="text-xs text-muted-foreground">Status: {meme.status}</p>
 										<p className="text-xs text-muted-foreground">Node ID: {meme.nodeId}</p>
-										<p className="text-xs text-muted-foreground">High Res URL(Default): {meme.highResUrl}</p>
-										<p className="text-xs text-muted-foreground">Low Res URL: {meme.videoUrl}</p>
 									</div>
 
-									<Button size="sm" variant="outline" onClick={() => getMEMEStatus(meme.memeId, meme.nodeId, isCustom)}>
-										<RefreshCw className="mr-2 h-4 w-4" />
-										Refresh
-									</Button>
+									<div className="flex flex-row space-x-2">
+										<Button
+											size="sm"
+											variant="outline"
+											onClick={() => getMEMEStatus(meme.memeId, meme.nodeId, isCustom)}
+										>
+											<RefreshCw className="mr-2 h-4 w-4" />
+											Refresh
+										</Button>
 
-									<Button size="sm" variant="destructive" onClick={() => deleteMeme(meme.nodeId)}>
-										<Trash className="mr-2 h-4 w-4" />
-										Delete
-									</Button>
+										<Button size="sm" variant="destructive" onClick={() => deleteMeme(meme.nodeId)}>
+											<Trash className="mr-2 h-4 w-4" />
+											Delete
+										</Button>
+									</div>
 								</div>
 
-								{meme.videoUrl || meme.highResUrl ? (
-									<video src={meme.highResUrl || meme.videoUrl} controls className="aspect-video w-full rounded-lg" />
-								) : null}
+								<div className="grid grid-cols-2 content-center text-center gap-4">
+									<div className="flex flex-col gap-2">
+										<p className="text-xs text-muted-foreground">Low Res URL: {meme.videoUrl}</p>
+										{meme.videoUrl && <video src={meme.videoUrl} controls className="aspect-video w-full rounded-lg" />}
+									</div>
+									<div className="flex flex-col gap-2">
+										<p className="text-xs text-muted-foreground">High Res URL(Default): {meme.highResUrl}</p>
+										{meme.highResUrl && (
+											<video src={meme.highResUrl} controls className="aspect-video w-full rounded-lg" />
+										)}
+									</div>
+								</div>
 							</div>
 						))}
 					</div>
