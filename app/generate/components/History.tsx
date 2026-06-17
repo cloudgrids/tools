@@ -44,43 +44,45 @@ export const History = () => {
 				<SheetHeader>
 					<SheetTitle>Generation History</SheetTitle>
 					<SheetDescription>View and manage generated videos.</SheetDescription>
+					<div className="grid grid-cols-3 md:grid-cols-3 gap-1 py-1">
+						<div className="rounded-lg border p-2">
+							<div className="text-xs text-muted-foreground">Total</div>
+							<div className="text-2xl font-bold">{history.length}</div>
+						</div>
+
+						<div className="rounded-lg border p-2">
+							<div className="text-xs text-muted-foreground">Completed</div>
+							<div className="text-2xl font-bold">{completed}</div>
+						</div>
+
+						<div className="rounded-lg border p-2">
+							<div className="text-xs text-muted-foreground">Pending</div>
+							<div className="text-2xl font-bold">{history.length - completed}</div>
+						</div>
+					</div>
+					<div className="relative">
+						<Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+
+						<Input
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+							placeholder="Search prompts..."
+							className="pl-9"
+						/>
+					</div>
+					<div className="flex flex-wrap gap-2 my-2">
+						{['all', 'completed', 'pending', 'failed'].map((status) => (
+							<Button
+								key={status}
+								size="sm"
+								variant={filter === status ? 'default' : 'outline'}
+								onClick={() => setFilter(status as 'all' | 'completed' | 'pending' | 'failed')}
+							>
+								{status}
+							</Button>
+						))}
+					</div>
 				</SheetHeader>
-
-				<div className="grid grid-cols-2 md:grid-cols-3 gap-3 py-4">
-					<div className="rounded-lg border p-3">
-						<div className="text-xs text-muted-foreground">Total</div>
-						<div className="text-2xl font-bold">{history.length}</div>
-					</div>
-
-					<div className="rounded-lg border p-3">
-						<div className="text-xs text-muted-foreground">Completed</div>
-						<div className="text-2xl font-bold">{completed}</div>
-					</div>
-
-					<div className="rounded-lg border p-3">
-						<div className="text-xs text-muted-foreground">Pending</div>
-						<div className="text-2xl font-bold">{history.length - completed}</div>
-					</div>
-				</div>
-
-				<div className="relative mb-4">
-					<Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-
-					<Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search prompts..." className="pl-9" />
-				</div>
-
-				<div className="flex flex-wrap gap-2 mb-4">
-					{['all', 'completed', 'pending', 'failed'].map((status) => (
-						<Button
-							key={status}
-							size="sm"
-							variant={filter === status ? 'default' : 'outline'}
-							onClick={() => setFilter(status as 'all' | 'completed' | 'pending' | 'failed')}
-						>
-							{status}
-						</Button>
-					))}
-				</div>
 
 				<div className="space-y-4 max-h-[70vh] overflow-y-auto">
 					{filteredHistory.length === 0 ? (
@@ -95,7 +97,7 @@ export const History = () => {
 								<div className="grid grid-cols-1">
 									{/* Preview Section */}
 									<div className="border-r bg-muted/20 p-3">
-										<div className="grid gap-3">
+										<div className="grid grid-cols-2 gap-3">
 											{/* Source Image */}
 											<div>
 												<p className="text-xs font-medium mb-2 text-muted-foreground">Source Image</p>
