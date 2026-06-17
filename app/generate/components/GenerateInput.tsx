@@ -2,24 +2,28 @@ import { Textarea } from '@/components/ui/textarea';
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
 import { Button } from '@base-ui/react';
+import { useState } from 'react';
 
 interface GenerateInputProps {
 	loading: boolean;
+	customInput: {};
+	setCustomInput: React.Dispatch<React.SetStateAction<{}>>;
 }
 
-export const GenerateInput: React.FC<GenerateInputProps> = ({ loading }) => {
+export const GenerateInput: React.FC<GenerateInputProps> = ({ loading, customInput, setCustomInput }) => {
 	const { setGenerateInput, generateInput, uploadResult } = usePopVidStore();
 	const { handleGenerate } = usePopVid();
+	const [jsonText, setJsonText] = useState<string>(JSON.stringify(customInput, null, 2));
+	const [jsonError, setJsonError] = useState<string>('');
 
 	const generateVideo = async () => {
-		await handleGenerate(generateInput?.videoPrompt || '');
+		await handleGenerate(generateInput?.videoPrompt || '', customInput);
 	};
 
 	return (
 		<div className=" rounded-xl p-5 shadow space-y-4">
 			<h2 className="font-semibold">Generation Settings</h2>
 			<sub className="block text-xs text-gray-500">Configure the prompt and settings for your video generation.</sub>
-
 			<Textarea
 				placeholder="Describe the video..."
 				value={generateInput?.videoPrompt || ''}
@@ -31,7 +35,22 @@ export const GenerateInput: React.FC<GenerateInputProps> = ({ loading }) => {
 				}
 				className="w-full border rounded-lg p-3 min-h-30"
 			/>
+			<Textarea
+				value={jsonText}
+				onChange={(e) => {
+					const value = e.target.value;
+					setJsonText(value);
 
+					try {
+						setCustomInput(JSON.parse(value));
+						setJsonError('');
+					} catch {
+						setJsonError('Invalid JSON');
+					}
+				}}
+				className="w-full border rounded-lg p-3 min-h-30"
+			/>
+			{jsonError && <p className="text-red-500 text-sm">{jsonError}</p>}
 			<Button
 				onClick={generateVideo}
 				disabled={!uploadResult || loading}

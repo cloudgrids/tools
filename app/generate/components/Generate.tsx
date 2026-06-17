@@ -17,6 +17,7 @@ export interface FileProps {
 export const Generate = () => {
 	const { loading } = usePopVid();
 	const { generateResult } = usePopVidStore();
+	const [customInput, setCustomInput] = useState<{}>({});
 	const [files, setFiles] = useState<FileProps[]>([]);
 
 	return (
@@ -35,7 +36,7 @@ export const Generate = () => {
 
 						<UploadResult files={files} setFiles={setFiles} loading={loading} />
 
-						<GenerateInput loading={loading} />
+						<GenerateInput loading={loading} customInput={customInput} setCustomInput={setCustomInput} />
 					</div>
 
 					{/* Sidebar */}

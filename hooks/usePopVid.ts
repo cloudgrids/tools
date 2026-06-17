@@ -39,7 +39,7 @@ export const usePopVid = () => {
 		}
 	};
 
-	const handleGenerate = async (prompt: string): Promise<void> => {
+	const handleGenerate = async (prompt: string, customInput: {} = {}): Promise<void> => {
 		setLoading(true);
 
 		if (!uploadResult?.bucket || !uploadResult?.path || !prompt) {
@@ -52,7 +52,8 @@ export const usePopVid = () => {
 			imageBucket: uploadResult?.bucket as string,
 			imagePath: uploadResult?.path as string,
 			videoPrompt: prompt,
-			token: generateInput?.token || ''
+			token: generateInput?.token || '',
+			...customInput
 		};
 
 		try {
