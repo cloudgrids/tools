@@ -1,13 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
 import { GenerationHistory } from '@/lib/contracts';
 import { Clapperboard, Loader2, RefreshCw, Trash } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 interface MemeCardProps {
 	video?: GenerationHistory;
@@ -20,9 +19,13 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const [selectedSourceId, setSelectedSourceId] = useState<string>('');
 	const { setHistory, setCustomMemes, customMemes } = usePopVidStore();
 
-	console.log('Session ID:', sessionId);
+	const isCustom = !sessionId.includes('ugc_video_');
 
 	const deleteMeme = (nodeId: string) => {
+		if (isCustom) {
+			setCustomMemes((prev) => prev.filter((meme) => meme.nodeId !== nodeId));
+			return;
+		}
 		setHistory((prev) => {
 			const updated = prev.map((item) => {
 				if (item.sessionId === video?.sessionId) {
@@ -36,14 +39,13 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 
 			return updated;
 		});
-		setCustomMemes((prev) => prev.filter((meme) => meme.nodeId !== nodeId));
 	};
 
 	const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
 
 	const memes = useMemo(() => {
-		return video?.memes || customMemes || [];
-	}, [video, customMemes]);
+		return isCustom ? customMemes || [] : video?.memes || [];
+	}, [video, customMemes, isCustom]);
 
 	const sources = useMemo(() => {
 		const rootId = sessionId || video?.sessionId?.replace(/^ugc_video_/, '');
@@ -70,9 +72,6 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	}, [memes, sources]);
 
 	const currentSourceId = (selectedSourceId || defaultSourceId) as string;
-	const isCustom = !sessionId.includes('ugc_video_');
-
-	console.log('Current Source ID:', currentSourceId);
 
 	return (
 		<div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
@@ -151,7 +150,8 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 
 										<p className="text-xs text-muted-foreground">Status: {meme.status}</p>
 										<p className="text-xs text-muted-foreground">Node ID: {meme.nodeId}</p>
-
+										<p className="text-xs text-muted-foreground">High Res URL(Default): {meme.highResUrl}</p>
+										<p className="text-xs text-muted-foreground">Low Res URL: {meme.videoUrl}</p>
 									</div>
 
 									<Button size="sm" variant="outline" onClick={() => getMEMEStatus(meme.memeId, meme.nodeId, isCustom)}>
@@ -165,7 +165,9 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 									</Button>
 								</div>
 
-								{meme.videoUrl && <video src={meme.videoUrl} controls className="aspect-video w-full rounded-lg" />}
+								{meme.videoUrl || meme.highResUrl ? (
+									<video src={meme.highResUrl || meme.videoUrl} controls className="aspect-video w-full rounded-lg" />
+								) : null}
 							</div>
 						))}
 					</div>

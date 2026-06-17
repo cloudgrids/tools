@@ -182,6 +182,7 @@ export interface MemeOutput {
 
 export interface MemeStatus extends MemeOutput {
 	videoUrl?: string;
+	highResUrl?: string;
 	memeId: string;
 }
 

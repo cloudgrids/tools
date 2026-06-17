@@ -1,4 +1,4 @@
-import { CustomMemes, GenerateInput, GenerateOutput, GenerateResult, GenerationHistory, MemeStatus, UploadResult } from '@/lib/contracts';
+import { GenerateInput, GenerateOutput, GenerateResult, GenerationHistory, MemeStatus, UploadResult } from '@/lib/contracts';
 import { Updater } from '@/lib/helpers';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';

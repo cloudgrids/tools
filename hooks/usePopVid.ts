@@ -96,22 +96,22 @@ export const usePopVid = () => {
 		}
 	};
 
-	const makeMeme = async (prompt: string, memeId: string, sessionId: string, isCustom: boolean = false): Promise<void> => {
+	const makeMeme = async (prompt: string, nodeOrSessionId: string, sessionId: string, isCustom: boolean = false): Promise<void> => {
 		setLoading(true);
 
-		if (!prompt || !memeId || !sessionId) {
+		if (!prompt || !nodeOrSessionId || !sessionId) {
 			toast.error('Please fill in all fields before creating a meme');
 			setLoading(false);
 			return;
 		}
 
-		console.log('Creating meme with:', { prompt, memeId, sessionId });
+		console.log('Creating meme with:', { prompt, nodeOrSessionId, sessionId });
 
 		try {
-			const res = await createMeme(prompt, memeId, sessionId);
+			const res = await createMeme(prompt, nodeOrSessionId, sessionId);
 			toast.success('Meme generation started with PopVid');
 
-			const newMeme = { memeId, status: res.status, nodeId: res.nodeId, prompt } satisfies MemeStatus;
+			const newMeme = { memeId: sessionId, status: res.status, nodeId: res.nodeId, prompt } satisfies MemeStatus;
 
 			if (isCustom) {
 				setCustomMemes((prev) => [...prev, { ...newMeme }]);
@@ -127,8 +127,6 @@ export const usePopVid = () => {
 					)
 				);
 			}
-
-			await getMEMEStatus(memeId, res.nodeId, isCustom);
 		} catch (error) {
 			toast.error('Failed to generate meme with PopVid');
 			console.error('Error generating meme with PopVid:', error instanceof Error ? error.message : error);
@@ -137,13 +135,17 @@ export const usePopVid = () => {
 		}
 	};
 
-	const getMEMEStatus = async (memeId: string, nodeId: string, isCustom: boolean = false): Promise<void> => {
+	const getMEMEStatus = async (nodeOrSessionId: string, nodeId: string, isCustom: boolean = false): Promise<void> => {
 		try {
-			const res = await getMemeStatus(memeId, nodeId);
+			const res = await getMemeStatus(nodeOrSessionId, nodeId);
+
+			const highResUrl = res?.videoUrl?.replace('twist', 'enhanced');
 
 			if (isCustom) {
 				setCustomMemes((prev) =>
-					prev.map((meme) => (meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl } : meme))
+					prev.map((meme) =>
+						meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl, highResUrl } : meme
+					)
 				);
 			} else {
 				setHistory((prev) =>
@@ -152,7 +154,7 @@ export const usePopVid = () => {
 							return {
 								...item,
 								memes: item.memes.map((meme) =>
-									meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl } : meme
+									meme.nodeId === nodeId ? { ...meme, status: res.status, videoUrl: res.videoUrl, highResUrl } : meme
 								)
 							};
 						}
