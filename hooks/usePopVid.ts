@@ -1,4 +1,5 @@
-import { generate, getStatus, upload } from '@/app/server/popvid';
+import { createMeme, generate, getMemeStatus, getStatus, upload } from '@/app/server/popvid';
+import { MemeStatus } from '@/lib/contracts';
 import { OptionsType, setCookie } from 'cookies-next';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -6,7 +7,7 @@ import { usePopVidStore } from './popvid.store';
 
 export const usePopVid = () => {
 	const [loading, setLoading] = useState<boolean>(false);
-	const { generateResult, uploadResult, setGenerateResult, setUploadResult, setVideoStatus, generateInput, setHistory } =
+	const { generateResult, uploadResult, setGenerateResult, setUploadResult, setVideoStatus, generateInput, setHistory, setMemes } =
 		usePopVidStore();
 
 	const setAuthCookie = (key: string, data: string, options: OptionsType) => {
@@ -95,5 +96,68 @@ export const usePopVid = () => {
 		}
 	};
 
-	return { loading, handleUpload, handleGenerate, getVideoStatus, setAuthCookie };
+	const makeMeme = async (prompt: string, memeId: string, sessionId: string): Promise<void> => {
+		setLoading(true);
+
+		if (!prompt || !memeId || !sessionId) {
+			toast.error('Please fill in all fields before creating a meme');
+			setLoading(false);
+			return;
+		}
+
+		console.log('Creating meme with:', { prompt, memeId, sessionId });
+
+		try {
+			const res = await createMeme(prompt, memeId, sessionId);
+			toast.success('Meme generation started with PopVid');
+
+			const newMeme = { memeId, status: res.status, nodeId: res.nodeId, prompt } satisfies MemeStatus;
+
+			setHistory((prev) =>
+				prev.map((item) =>
+					item.sessionId === sessionId
+						? {
+								...item,
+								memes: [...(item.memes ?? []), newMeme]
+							}
+						: item
+				)
+			);
+			setMemes((prev) => [...prev, { ...newMeme }]);
+		} catch (error) {
+			toast.error('Failed to generate meme with PopVid');
+			console.error('Error generating meme with PopVid:', error instanceof Error ? error.message : error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const getMEMEStatus = async (memeId: string, nodeId: string): Promise<void> => {
+		try {
+			const res = await getMemeStatus(memeId, nodeId);
+
+			setMemes((prev) =>
+				prev.map((item) => (item.memeId === memeId ? { ...item, status: res.status, videoUrl: res.videoUrl } : item))
+			);
+
+			setHistory((prev) =>
+				prev.map((item) => {
+					if (item.memes) {
+						return {
+							...item,
+							memes: item.memes.map((meme) =>
+								meme.memeId === memeId ? { ...meme, status: res.status, videoUrl: res.videoUrl } : meme
+							)
+						};
+					}
+					return item;
+				})
+			);
+		} catch (error) {
+			toast.error('Failed to get meme status from PopVid');
+			console.error('Error getting meme status from PopVid:', error instanceof Error ? error.message : error);
+		}
+	};
+
+	return { loading, handleUpload, handleGenerate, getVideoStatus, setAuthCookie, makeMeme, getMEMEStatus };
 };

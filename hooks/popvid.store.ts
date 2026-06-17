@@ -1,4 +1,4 @@
-import { GenerateInput, GenerateOutput, GenerateResult, GenerationHistory, UploadResult } from '@/lib/contracts';
+import { GenerateInput, GenerateOutput, GenerateResult, GenerationHistory, MemeStatus, UploadResult } from '@/lib/contracts';
 import { Updater } from '@/lib/helpers';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -9,6 +9,8 @@ export type PopVidStore = {
 	videoStatus: GenerateResult | null;
 	generateInput: GenerateInput;
 	history: GenerationHistory[];
+	memes: MemeStatus[];
+	setMemes: (result: Updater<MemeStatus[]>) => void;
 	setHistory: (result: Updater<GenerationHistory[]>) => void;
 	setGenerateResult: (result: Updater<GenerateOutput | null>) => void;
 	setGenerateInput: (result: Updater<GenerateInput>) => void;
@@ -29,6 +31,8 @@ export const usePopVidStore = create<PopVidStore>()(
 				token: ''
 			},
 			history: [],
+			memes: [],
+			setMemes: (result) => set((state) => ({ memes: typeof result === 'function' ? result(state.memes) : result })),
 			setHistory: (result) => set((state) => ({ history: typeof result === 'function' ? result(state.history) : result })),
 			setGenerateInput: (result) =>
 				set((state) => ({ generateInput: typeof result === 'function' ? result(state.generateInput) : result })),

@@ -13,16 +13,19 @@ import {
 } from '@/components/ui/sheet';
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { GenerationHistory } from '@/lib/contracts';
-import { Clock, Copy, Download, RefreshCw, Search, Trash2, Video } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Clock, Copy, Download, RefreshCw, Search, Sparkles, Trash2, Video } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 export const History = () => {
-	const { history, setHistory, setUploadResult, setGenerateInput, setGenerateResult, setVideoStatus } = usePopVidStore();
+	const { history, setHistory, setUploadResult, setGenerateInput, setGenerateResult, setVideoStatus, generateResult } = usePopVidStore();
 	const [search, setSearch] = useState<string>('');
 	const [filter, setFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const router = useRouter();
 
 	const filteredHistory = useMemo(() => {
 		return history.filter((item) => {
@@ -62,6 +65,8 @@ export const History = () => {
 		setIsOpen(false);
 		toast.success('Prompt loaded. You can now generate the video again.');
 	};
+
+	const getMemeId = (id: string) => id.match(/^ugc_video_(.*)/i)?.[0] || id;
 
 	return (
 		<Sheet onOpenChange={(open) => setIsOpen(open)} open={!!isOpen}>
@@ -120,7 +125,13 @@ export const History = () => {
 						</div>
 					) : (
 						filteredHistory.map((item, index) => (
-							<div key={index} className="rounded-xl border overflow-hidden hover:bg-muted/40 transition">
+							<div
+								key={index}
+								className={cn(
+									'rounded-xl border overflow-hidden hover:bg-muted/40 transition',
+									generateResult?.sessionId === item.sessionId ? 'bg-slate-300' : ''
+								)}
+							>
 								<div className="grid grid-cols-1">
 									<div className="border-r bg-muted/20 p-3">
 										<div className="grid grid-cols-2 gap-3">
@@ -206,6 +217,15 @@ export const History = () => {
 											>
 												<Trash2 className="h-4 w-4 mr-2" />
 												Delete
+											</Button>
+
+											<Button
+												size="sm"
+												variant="destructive"
+												onClick={() => router.push(`/generate/${getMemeId(item.sessionId)}`)}
+											>
+												<Sparkles className="h-4 w-4 mr-2" />
+												Make Meme
 											</Button>
 										</div>
 

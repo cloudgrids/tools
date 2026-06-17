@@ -174,4 +174,17 @@ export interface GenerateResult {
 	videoUrl?: string;
 }
 
-export interface GenerationHistory extends GenerateResult, GenerateInput, GenerateOutput {}
+export interface MemeOutput {
+	nodeId: string;
+	status: string;
+	prompt: string;
+}
+
+export interface MemeStatus extends MemeOutput {
+	videoUrl?: string;
+	memeId: string;
+}
+
+export interface GenerationHistory extends GenerateResult, GenerateInput, GenerateOutput {
+	memes?: MemeStatus[];
+}

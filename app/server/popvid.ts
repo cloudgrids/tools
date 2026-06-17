@@ -1,6 +1,6 @@
 'use server';
 
-import { GenerateInput, GenerateOutput, GenerateResult, UploadResult } from '@/lib/contracts';
+import { GenerateInput, GenerateOutput, GenerateResult, MemeOutput, MemeStatus, UploadResult } from '@/lib/contracts';
 import { cookies } from 'next/headers';
 
 const headers = {
@@ -103,6 +103,49 @@ export const getStatus = async (sessionId: string): Promise<GenerateResult> => {
 		return (await res.json()) as GenerateResult;
 	} catch (error) {
 		console.error('Error getting video status from PopVid:', error instanceof Error ? error.message : error);
+		throw error;
+	}
+};
+
+export const createMeme = async (prompt: string, memeId: string, sessionId: string): Promise<MemeOutput> => {
+	if (!prompt) {
+		console.error('No prompt provided for meme creation');
+		return { status: 'error', nodeId: '', prompt };
+	}
+
+	try {
+		const res = await fetch(`https://popvid.ai/api/v3/meme/${sessionId}/story/${memeId}`, {
+			method: 'POST',
+			headers: { ...(await getHeaders()), 'Content-Type': 'application/json' },
+			body: JSON.stringify({ textPrompt: prompt })
+		});
+
+		if (!res.ok) throw new Error('Failed to create meme');
+
+		return (await res.json()) as MemeOutput;
+	} catch (error) {
+		console.error('Error creating meme with PopVid:', error instanceof Error ? error.message : error);
+		throw error;
+	}
+};
+
+export const getMemeStatus = async (memeId: string, nodeId: string): Promise<MemeStatus> => {
+	if (!nodeId) {
+		console.error('No node ID available for meme status check');
+		return { status: 'error', nodeId: '', memeId, prompt: '' };
+	}
+
+	try {
+		const res = await fetch(`https://popvid.ai/api/v3/meme/${memeId}/story/${nodeId}/status`, {
+			method: 'GET',
+			headers: await getHeaders()
+		});
+
+		if (!res.ok) throw new Error('Failed to get meme status');
+
+		return (await res.json()) as MemeStatus;
+	} catch (error) {
+		console.error('Error getting meme status from PopVid:', error instanceof Error ? error.message : error);
 		throw error;
 	}
 };
