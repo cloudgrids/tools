@@ -14,7 +14,7 @@ interface MemeCardProps {
 }
 
 export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
-	const [prompt, setPrompt] = useState<string>('');
+	const [prompt, setPrompt] = useState<string>('**Camera fixed on the full-body view**');
 	const [selectedSourceId, setSelectedSourceId] = useState<string>('');
 	const { makeMeme, getMEMEStatus, loading } = usePopVid();
 	const setHistory = usePopVidStore((s) => s.setHistory);
