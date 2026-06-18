@@ -13,7 +13,7 @@ import {
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { GenerationHistory } from '@/lib/contracts';
 import { Search, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CustomMemesHistory } from './CustomMemesHistory';
 import { VideoHistory } from './VideoHistory';
@@ -23,12 +23,15 @@ export const getImageUrl = (item: GenerationHistory) => `https://storage.googlea
 
 export const History = () => {
 	const { history } = usePopVidStore();
+	const pathname = usePathname();
 	const [search, setSearch] = useState<string>('');
 	const [filter, setFilter] = useState<FilterType>('all');
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const router = useRouter();
 	const [customMemeSessionId, setCustomMemeSessionId] = useState<string>('');
 	const [view, setView] = useState<'video' | 'meme'>('video');
+
+	const isMemePath = pathname.includes('generate/');
 
 	const completed = history.filter((item) => item.status?.toLowerCase() === 'completed').length;
 
@@ -88,7 +91,7 @@ export const History = () => {
 						<Button
 							className="absolute right-3 top-2 cursor-pointer h-4 w-4 text-muted-foreground"
 							variant={'destructive'}
-							onClick={() => router.push(`generate/${customMemeSessionId}`)}
+							onClick={() => router.push(!isMemePath ? `generate/${customMemeSessionId}` : customMemeSessionId)}
 						>
 							<Sparkles className="h-4 w-4" />
 						</Button>

@@ -46,8 +46,8 @@ export const MemeBox: React.FC<MemeCardProps> = ({ video, sessionId }) => {
 	const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
 
 	const memes = useMemo(() => {
-		return isCustom ? customMemes || [] : video?.memes || [];
-	}, [video, customMemes, isCustom]);
+		return isCustom ? customMemes.filter((meme) => meme.memeId === sessionId) || [] : video?.memes || [];
+	}, [video, customMemes, isCustom, sessionId]);
 
 	const sources = useMemo(() => {
 		const rootId = sessionId || video?.sessionId?.replace(/^ugc_video_/, '');
