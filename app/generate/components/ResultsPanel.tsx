@@ -186,8 +186,12 @@ export const ResultsPanel = memo(({ loading, customInput, setCustomInput, genera
 
 			{generateResult && (
 				<div
-					className={mobile ? 'flex flex-col border-t border-border/60' : 'flex shrink-0 flex-col overflow-hidden'}
-					style={mobile ? undefined : { maxHeight: '45%' }}
+					className={
+						mobile
+							? 'flex flex-col border-t border-border/60'
+							: 'flex flex-col border-t border-border/60 bg-black/10'
+					}
+					style={mobile ? undefined : { height: '45%', minHeight: '220px' }}
 				>
 					<div className="flex items-center gap-3 border-b border-border/60 px-6 shrink-0">
 						<Video className="size-3.5 text-muted-foreground" />
@@ -227,16 +231,16 @@ export const ResultsPanel = memo(({ loading, customInput, setCustomInput, genera
 						</div>
 					</div>
 
-					<div className={mobile ? 'flex flex-col gap-4 p-4' : 'flex overflow-hidden gap-0'}>
-						<div className="flex flex-1 flex-col items-center justify-center overflow-hidden bg-black/30 p-2">
+					<div className={mobile ? 'flex flex-col gap-4 p-4' : 'flex flex-1 min-h-0 gap-0 overflow-hidden'}>
+						<div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-3">
 							{hasVideo ? (
-								<div className="flex flex-col gap-2 w-full max-w-lg">
+								<div className="flex flex-col gap-2 w-full h-full max-w-lg items-center justify-center">
 									<video
 										key={videoStatus!.videoUrl}
 										src={videoStatus!.videoUrl}
 										controls
 										preload="metadata"
-										className="w-full rounded-xl border border-white/10 shadow-xl"
+										className="w-full max-h-[calc(100%-2rem)] rounded-xl border border-white/10 shadow-xl object-contain bg-black"
 									/>
 									<a
 										href={videoStatus!.videoUrl}
