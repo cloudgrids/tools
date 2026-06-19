@@ -104,7 +104,7 @@ export const VideoHistory: React.FC<VideoHistoryProps> = ({ search, filter, onOp
 							<div className="flex gap-2 mt-3 flex-wrap">
 								<Badge variant={item.status === 'completed' ? 'default' : 'secondary'}>{item.status ?? 'pending'}</Badge>
 
-								<Badge variant="outline">{item.sessionId.slice(0, 12)}</Badge>
+								<Badge variant="outline">{item?.sessionId?.slice(0, 12)}</Badge>
 							</div>
 						</div>
 
