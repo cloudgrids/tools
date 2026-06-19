@@ -94,11 +94,7 @@ export const ResultsPanel = memo(({ loading, customInput, setCustomInput, genera
 
 	return (
 		<main className={mobile ? 'flex flex-col' : 'flex flex-1 flex-col overflow-hidden'}>
-			<div
-				className={
-					mobile ? 'flex flex-col gap-5 px-4 py-5 sm:px-6' : 'flex flex-1 flex-col overflow-y-auto border-b border-border/60'
-				}
-			>
+			<div className={mobile ? 'flex flex-col gap-5 px-4 sm:px-6' : 'flex flex-col overflow-y-auto border-b border-border/60'}>
 				<div className={mobile ? 'flex flex-col gap-5' : 'flex flex-col gap-5 max-w-2xl mt-1 w-full mx-auto'}>
 					<section className="space-y-1">
 						<label
@@ -231,7 +227,7 @@ export const ResultsPanel = memo(({ loading, customInput, setCustomInput, genera
 						</div>
 					</div>
 
-					<div className={mobile ? 'flex flex-col gap-4 p-4' : 'flex flex-1 overflow-hidden gap-0'}>
+					<div className={mobile ? 'flex flex-col gap-4 p-4' : 'flex overflow-hidden gap-0'}>
 						<div className="flex flex-1 flex-col items-center justify-center overflow-hidden bg-black/30 p-2">
 							{hasVideo ? (
 								<div className="flex flex-col gap-2 w-full max-w-lg">
