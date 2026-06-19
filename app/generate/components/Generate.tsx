@@ -2,12 +2,11 @@
 
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
-import { useState } from 'react';
-import { AuthTokenCard } from './AuthTokenCard';
-import { GenerateInput } from './GenerateInput';
+import { Film } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { History } from './History';
-import { UploadResult } from './UploadResult';
-import { VideoStatus } from './VideoStatus';
+import { ResultsPanel } from './ResultsPanel';
+import { StudioPanel } from './StudioPanel';
 
 export interface FileProps {
 	file: File;
@@ -17,44 +16,46 @@ export interface FileProps {
 export const Generate = () => {
 	const { loading } = usePopVid();
 	const { generateResult } = usePopVidStore();
-	const [customInput, setCustomInput] = useState<{}>({});
+	const [customInput, setCustomInput] = useState<Record<string, unknown>>({});
 	const [files, setFiles] = useState<FileProps[]>([]);
 
+	const handleSetFiles = useCallback((updater: React.SetStateAction<FileProps[]>) => setFiles(updater), []);
+
 	return (
-		<div className="min-h-screen">
-			<div className="mx-auto max-w-7xl p-6">
-				<div className="mb-6 flex items-center justify-between">
-					<h1 className="text-4xl font-bold">AI Video Generator</h1>
-
-					<History />
-				</div>
-
-				<div className="grid gap-6 lg:grid-cols-[1fr_400px]">
-					{/* Main Content */}
-					<div className="space-y-6">
-						<AuthTokenCard />
-
-						<UploadResult files={files} setFiles={setFiles} loading={loading} />
-
-						<GenerateInput loading={loading} customInput={customInput} setCustomInput={setCustomInput} />
+		<>
+			<header className="relative flex shrink-0 items-center justify-between gap-4 border-b border-border/60 px-4 py-3 sm:px-6 md:px-8">
+				<div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-violet-500/50 to-transparent" />
+				<div className="flex items-center gap-3">
+					<div className="flex size-8 items-center justify-center rounded-lg bg-linear-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-500/30">
+						<Film className="size-4 text-white" />
 					</div>
-
-					{/* Sidebar */}
-					<div className="space-y-6">
-						<VideoStatus />
-
-						{generateResult && (
-							<div className="rounded-xl border bg-card p-4">
-								<h3 className="mb-3 font-semibold">API Response</h3>
-
-								<pre className="max-h-100 overflow-auto rounded-md bg-black p-3 text-xs text-green-400">
-									{JSON.stringify(generateResult, null, 2)}
-								</pre>
-							</div>
-						)}
+					<div>
+						<h1 className="text-base font-bold leading-none">AI Video Generator</h1>
+						<p className="text-[10px] text-muted-foreground mt-0.5 leading-none">PopVid Studio</p>
 					</div>
 				</div>
+				<History />
+			</header>
+
+			<div className="flex flex-col gap-0 lg:hidden">
+				<StudioPanel files={files} setFiles={handleSetFiles} loading={loading} mobile />
+				<div className="h-px bg-border/60" />
+				<ResultsPanel
+					loading={loading}
+					customInput={customInput}
+					setCustomInput={setCustomInput}
+					generateResult={generateResult}
+					mobile
+				/>
 			</div>
-		</div>
+
+			<div className="hidden lg:flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 3.5rem - 49px)' }}>
+				<StudioPanel files={files} setFiles={handleSetFiles} loading={loading} />
+				<div className="relative shrink-0 w-px bg-border/60">
+					<div className="absolute inset-y-0 left-0 w-px bg-linear-to-b from-transparent via-violet-500/30 to-transparent" />
+				</div>
+				<ResultsPanel loading={loading} customInput={customInput} setCustomInput={setCustomInput} generateResult={generateResult} />
+			</div>
+		</>
 	);
 };

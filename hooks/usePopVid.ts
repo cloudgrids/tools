@@ -17,7 +17,7 @@ export const usePopVid = () => {
 			domain: process.env.NEXT_PUBLIC_NODE_ENV === 'production' ? 'tools.cloudgrids.tech' : 'localhost',
 			sameSite: 'none',
 			secure: true,
-			expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+			expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 		});
 	};
 
