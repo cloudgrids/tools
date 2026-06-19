@@ -21,6 +21,14 @@ export const usePopVid = () => {
 		});
 	};
 
+	const errorMessage = (error: unknown, message: string) => {
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+		toast.error(message, {
+			description: errorMessage
+		});
+		console.error('Error:', errorMessage);
+	};
+
 	const handleUpload = async (file: File): Promise<void> => {
 		setLoading(true);
 		try {
@@ -33,8 +41,7 @@ export const usePopVid = () => {
 
 			toast.success('Image uploaded to PopVid successfully');
 		} catch (error) {
-			toast.error('Failed to upload image to PopVid');
-			console.error('Error uploading to PopVid:', error instanceof Error ? error.message : error);
+			errorMessage(error, 'Failed to upload image to PopVid');
 		} finally {
 			setLoading(false);
 		}
@@ -44,7 +51,7 @@ export const usePopVid = () => {
 		setLoading(true);
 
 		if (!uploadResult?.bucket || !uploadResult?.path || !prompt) {
-			toast.error('Please upload an image and enter a prompt before generating a video', { description: uploadResult?.bucket });
+			errorMessage(new Error('Missing required fields'), 'Please upload an image and provide a prompt before generating a video');
 			setLoading(false);
 			return;
 		}
@@ -68,8 +75,7 @@ export const usePopVid = () => {
 
 			setHistory((prev) => [...prev, { ...payload, ...res }]);
 		} catch (error) {
-			toast.error('Failed to generate video with PopVid');
-			console.error('Error generating video with PopVid:', error instanceof Error ? error.message : error);
+			errorMessage(error, 'Failed to generate video with PopVid');
 		} finally {
 			setLoading(false);
 		}
@@ -78,7 +84,7 @@ export const usePopVid = () => {
 	const getVideoStatus = async (sessionId?: string): Promise<void> => {
 		const session = sessionId || generateResult?.sessionId;
 		if (!session) {
-			toast.error('No session ID available for video status check');
+			errorMessage(new Error('Missing session ID'), 'Session ID is required to get video status');
 			return;
 		}
 
@@ -91,8 +97,7 @@ export const usePopVid = () => {
 
 			setVideoStatus(res);
 		} catch (error) {
-			toast.error('Failed to get video status from PopVid');
-			console.error('Error getting video status from PopVid:', error instanceof Error ? error.message : error);
+			errorMessage(error, 'Failed to get video status from PopVid');
 		}
 	};
 
@@ -100,12 +105,10 @@ export const usePopVid = () => {
 		setLoading(true);
 
 		if (!prompt || !nodeOrSessionId || !sessionId) {
-			toast.error('Please fill in all fields before creating a meme');
+			errorMessage(new Error('Missing required fields'), 'Please fill in all fields before creating a meme');
 			setLoading(false);
 			return;
 		}
-
-		console.log('Creating meme with:', { prompt, nodeOrSessionId, sessionId });
 
 		try {
 			const res = await createMeme(prompt, nodeOrSessionId, sessionId);
@@ -128,8 +131,7 @@ export const usePopVid = () => {
 				);
 			}
 		} catch (error) {
-			toast.error('Failed to generate meme with PopVid');
-			console.error('Error generating meme with PopVid:', error instanceof Error ? error.message : error);
+			errorMessage(error, 'Failed to create meme with PopVid');
 		} finally {
 			setLoading(false);
 		}
@@ -163,8 +165,7 @@ export const usePopVid = () => {
 				);
 			}
 		} catch (error) {
-			toast.error('Failed to get meme status from PopVid');
-			console.error('Error getting meme status from PopVid:', error instanceof Error ? error.message : error);
+			errorMessage(error, 'Failed to get meme status from PopVid');
 		}
 	};
 
