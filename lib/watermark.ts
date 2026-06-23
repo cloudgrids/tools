@@ -1,4 +1,6 @@
 import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
 import { ApplyWatermarkProps, ImageWatermarkOptions, TextWatermarkOptions } from './contracts';
 import type { WatermarkPosition } from './enumerations';
 
@@ -9,17 +11,24 @@ let _fontDataUri: Promise<string> | null = null;
 
 const getFontDataUri = (): Promise<string> => {
 	if (!_fontDataUri) {
-		_fontDataUri = fetch(GOOGLE_FONTS_INTER_BOLD_URL)
-			.then(async (res) => {
+		_fontDataUri = (async () => {
+			try {
+				const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Inter-Bold.woff2');
+				if (fs.existsSync(fontPath)) {
+					const buffer = fs.readFileSync(fontPath);
+					return `data:font/woff2;base64,${buffer.toString('base64')}`;
+				}
+				console.warn('[watermark] Local font not found, falling back to Google Fonts');
+				const res = await fetch(GOOGLE_FONTS_INTER_BOLD_URL);
 				if (!res.ok) throw new Error(`HTTP ${res.status}`);
 				const arrayBuffer = await res.arrayBuffer();
 				const b64 = Buffer.from(arrayBuffer).toString('base64');
 				return `data:font/woff2;base64,${b64}`;
-			})
-			.catch((err) => {
-				console.warn('[watermark] Failed to fetch Inter Bold from Google Fonts:', err?.message);
+			} catch (err: any) {
+				console.warn('[watermark] Failed to load font:', err?.message);
 				return '';
-			});
+			}
+		})();
 	}
 	return _fontDataUri;
 };
