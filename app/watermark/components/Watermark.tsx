@@ -10,8 +10,8 @@ import { WatermarkPreviews } from './WatermarkPreviews';
 const defaultOptions: WatermarkProps = {
 	// shared
 	mode: 'text',
-	opacity: 0.5,
-	angle: -30,
+	opacity: 1,
+	angle: 0,
 	blend: 'over',
 	position: 'center',
 	tiled: false,
@@ -28,10 +28,17 @@ const defaultOptions: WatermarkProps = {
 	imageDataUri: undefined,
 	widthRatio: 0.25,
 	grayscale: false,
+	// imagePositionX/Y and textPositionX/Y intentionally omitted — undefined means use position + margin (server default)
 	tileGapX: 20,
 	tileGapY: 20,
 	tileCountX: 4,
 	tileCountY: 4,
+	logoBgShape: 'none',
+	logoBgColor: '#1c1c1e',
+	logoBgOpacity: 0.65,
+	logoPadding: 10,
+	logoBgType: 'color',
+	logoBgImageUri: undefined,
 	layers: []
 };
 
@@ -42,6 +49,7 @@ export const Watermark = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [options, setOptions] = useState<WatermarkProps>(defaultOptions);
 	const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+	const [activeIndex, setActiveIndex] = useState<number>(0);
 	const { loading: exporting } = useExport();
 
 	const selectedOutputAssets = useMemo(
@@ -69,6 +77,9 @@ export const Watermark = () => {
 					selectedAssets={selectedAssets}
 					onSelectedAssets={setSelectedAssets}
 					selectedOutputAssets={selectedOutputAssets}
+					onOptionsChange={setOptions}
+					activeIndex={activeIndex}
+					onActiveIndex={setActiveIndex}
 				/>
 
 				<div className="max-h-[calc(100vh-8rem)] overflow-y-auto rounded-xl">

@@ -2,8 +2,7 @@ import { FullScreenButton } from '@/components/FullScreenButton';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface AssetsProps {
 	url: string;
@@ -14,9 +13,39 @@ interface AssetsProps {
 	viewingIndex: number;
 	onSetViewingIndex: React.Dispatch<React.SetStateAction<number>>;
 	urls: string[];
+	watermarkPreview?: {
+		src: string;
+		x: number;
+		y: number;
+		widthRatio: number;
+		enabled: boolean;
+		onMove: (x: number, y: number) => void;
+	};
 }
 
-export const Assets: React.FC<AssetsProps> = ({ url, isSelected, onToggleSelect, onAssetClick, viewingIndex, onSetViewingIndex, urls }) => {
+const clampPercent = (value: number) => Math.max(0, Math.min(100, value));
+
+export const Assets: React.FC<AssetsProps> = ({
+	url,
+	isSelected,
+	onToggleSelect,
+	onAssetClick,
+	viewingIndex,
+	onSetViewingIndex,
+	urls,
+	watermarkPreview
+}) => {
+	const [imageSize, setImageSize] = useState({ width: 1, height: 1 });
+	const isWide = imageSize.width >= imageSize.height;
+
+	const handleMoveWatermark = (e: React.PointerEvent<HTMLDivElement>) => {
+		if (!watermarkPreview?.enabled) return;
+		const rect = e.currentTarget.getBoundingClientRect();
+		const x = clampPercent(((e.clientX - rect.left) / rect.width) * 100);
+		const y = clampPercent(((e.clientY - rect.top) / rect.height) * 100);
+		watermarkPreview.onMove(x, y);
+	};
+
 	return (
 		<motion.div
 			layout
@@ -33,14 +62,52 @@ export const Assets: React.FC<AssetsProps> = ({ url, isSelected, onToggleSelect,
 			>
 				<div className="relative w-full h-full bg-muted overflow-hidden" onClick={(e) => onAssetClick(e, url)}>
 					{url ? (
-						<Image
-							src={url}
-							alt="Asset"
-							fill
-							id={url}
-							className={`object-cover transition-transform duration-500 ${!isSelected && 'group-hover:scale-110'}`}
-							sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
-						/>
+						<div className="flex h-full w-full items-center justify-center">
+							<div
+								className={cn(
+									'relative overflow-hidden',
+									isWide ? 'w-full' : 'h-full',
+									watermarkPreview?.enabled && 'cursor-crosshair'
+								)}
+								style={{ aspectRatio: `${imageSize.width} / ${imageSize.height}` }}
+								onClick={(e) => {
+									if (watermarkPreview?.enabled) e.stopPropagation();
+								}}
+								onPointerDown={(e) => {
+									if (!watermarkPreview?.enabled) return;
+									e.stopPropagation();
+									e.currentTarget.setPointerCapture(e.pointerId);
+									handleMoveWatermark(e);
+								}}
+								onPointerMove={(e) => {
+									if (!watermarkPreview?.enabled || e.buttons !== 1) return;
+									e.stopPropagation();
+									handleMoveWatermark(e);
+								}}
+							>
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img
+									src={url}
+									alt="Asset"
+									id={url}
+									className={cn('h-full w-full object-contain transition-transform duration-500', !isSelected && 'group-hover:scale-105')}
+									onLoad={(e) => setImageSize({ width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight })}
+								/>
+								{watermarkPreview?.enabled && (
+									// eslint-disable-next-line @next/next/no-img-element
+									<img
+										src={watermarkPreview.src}
+										alt=""
+										className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]"
+										style={{
+											left: `${watermarkPreview.x}%`,
+											top: `${watermarkPreview.y}%`,
+											width: `${Math.round(watermarkPreview.widthRatio * 100)}%`
+										}}
+									/>
+								)}
+							</div>
+						</div>
 					) : (
 						<div className="flex items-center justify-center h-full text-muted-foreground text-[10px] uppercase tracking-tighter text-center px-1">
 							No Preview

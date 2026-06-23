@@ -51,11 +51,34 @@ export async function POST(request: NextRequest) {
 			imageDataUri,
 			widthRatio,
 			grayscale,
+			imagePositionX,
+			imagePositionY,
+			textPositionX,
+			textPositionY,
 			tileGapX,
 			tileGapY,
 			tileCountX,
-			tileCountY
+			tileCountY,
+			logoBgShape,
+			logoBgColor,
+			logoBgOpacity,
+			logoPadding,
+			logoBgType,
+			logoBgImageUri
 		} = options;
+
+		// Decode base64 data-URI once if present
+		let logoBuffer: Buffer | undefined;
+		if (imageDataUri) {
+			const base64Data = imageDataUri.replace(/^data:[^;]+;base64,/, '');
+			logoBuffer = Buffer.from(base64Data, 'base64');
+		}
+
+		let bgImageBuffer: Buffer | undefined;
+		if (logoBgImageUri) {
+			const base64Data = logoBgImageUri.replace(/^data:[^;]+;base64,/, '');
+			bgImageBuffer = Buffer.from(base64Data, 'base64');
+		}
 
 		// Build layers based on mode
 		const layers: WatermarkLayer[] = [];
@@ -74,19 +97,23 @@ export async function POST(request: NextRequest) {
 				margin,
 				strokeWidth,
 				strokeColor,
+				x: textPositionX,
+				y: textPositionY,
 				tileGap: { x: tileGapX, y: tileGapY },
-				tileCount: { x: tileCountX, y: tileCountY }
+				tileCount: { x: tileCountX, y: tileCountY },
+				logoBgShape,
+				logoBgColor,
+				logoBgOpacity,
+				logoPadding,
+				logoBgType,
+				logoBgImage: bgImageBuffer
 			});
 		}
 
-		if ((mode === 'image' || mode === 'both') && imageDataUri) {
-			// Decode base64 data-URI → Buffer
-			const base64Data = imageDataUri.replace(/^data:[^;]+;base64,/, '');
-			const imageBuffer = Buffer.from(base64Data, 'base64');
-
+		if ((mode === 'image' || mode === 'both') && logoBuffer) {
 			layers.push({
 				type: 'image',
-				image: imageBuffer,
+				image: logoBuffer,
 				opacity,
 				angle,
 				blend,
@@ -95,8 +122,16 @@ export async function POST(request: NextRequest) {
 				margin,
 				widthRatio,
 				grayscale,
+				x: imagePositionX,
+				y: imagePositionY,
 				tileGap: { x: tileGapX, y: tileGapY },
-				tileCount: { x: tileCountX, y: tileCountY }
+				tileCount: { x: tileCountX, y: tileCountY },
+				logoBgShape,
+				logoBgColor,
+				logoBgOpacity,
+				logoPadding,
+				logoBgType,
+				logoBgImage: bgImageBuffer
 			});
 		}
 

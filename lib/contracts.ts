@@ -103,12 +103,32 @@ export interface WatermarkProps {
 	widthRatio: number;
 	/** Convert the image watermark to greyscale. */
 	grayscale: boolean;
+	/**
+	 * Custom center point for the image watermark, as a percentage of the source image.
+	 * When undefined the server (and preview) falls back to resolvePosition(position, margin).
+	 */
+	imagePositionX?: number;
+	imagePositionY?: number;
 	/** Gap between tiles when tiled=true for image watermarks. */
 	tileGapX: number;
 	tileGapY: number;
 	/** Number of tile columns and rows when tiled=true. */
 	tileCountX: number;
 	tileCountY: number;
+	/** Logo background shape. */
+	logoBgShape?: 'none' | 'rect' | 'rounded-rect' | 'circle' | 'pill';
+	/** Logo background color. */
+	logoBgColor?: string;
+	/** Logo background opacity. */
+	logoBgOpacity?: number;
+	/** Logo background padding as a percentage of width. */
+	logoPadding?: number;
+	/** Custom center point for the text watermark, as a percentage of the source image. */
+	textPositionX?: number;
+	textPositionY?: number;
+	logoBgType?: 'color' | 'image';
+	logoBgImageUri?: string;
+	logoBgUseImage?: boolean;
 }
 
 /** Options shared by both text and image watermarks. */
@@ -125,6 +145,16 @@ interface WatermarkBase {
 	angle?: number;
 	/** Opacity from 0 (invisible) to 1 (fully opaque). @default 0.5 */
 	opacity?: number;
+	/** Logo background shape. */
+	logoBgShape?: 'none' | 'rect' | 'rounded-rect' | 'circle' | 'pill';
+	/** Logo background color. */
+	logoBgColor?: string;
+	/** Logo background opacity. */
+	logoBgOpacity?: number;
+	/** Logo background padding as a percentage of width. */
+	logoPadding?: number;
+	logoBgType?: 'color' | 'image';
+	logoBgImage?: Buffer;
 }
 
 export interface TextWatermarkOptions extends WatermarkBase {
@@ -143,6 +173,9 @@ export interface TextWatermarkOptions extends WatermarkBase {
 	tileGap?: { x?: number; y?: number };
 	/** Number of tile columns and rows (only used when tiled=true). */
 	tileCount?: { x?: number; y?: number };
+	/** Custom center point for the text watermark, as a percentage of the source image. */
+	x?: number;
+	y?: number;
 }
 
 export interface ImageWatermarkOptions extends WatermarkBase {
@@ -153,6 +186,9 @@ export interface ImageWatermarkOptions extends WatermarkBase {
 	widthRatio?: number;
 	/** Convert the watermark image to greyscale before compositing. @default false */
 	grayscale?: boolean;
+	/** Center point for the image watermark, stored as a percentage of the source image. */
+	x?: number;
+	y?: number;
 	/** Tile spacing in pixels (only used when tiled=true). @default  x: 20, y: 20  */
 	tileGap?: { x?: number; y?: number };
 	/** Number of tile columns and rows (only used when tiled=true). */
