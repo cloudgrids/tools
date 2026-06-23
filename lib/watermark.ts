@@ -56,6 +56,18 @@ const renderMultilineText = (lines: string[], x: number, y: number, fontSize: nu
 		.join('');
 };
 
+const measureTextLayer = (lines: string[], fontSize: number, strokeWidth: number): { width: number; height: number } => {
+	const longestLine = lines.reduce((longest, line) => Math.max(longest, line.length), 0);
+	const width = Math.max(longestLine * fontSize * 0.62 + strokeWidth * 2, 1);
+	const height = Math.max(lines.length * fontSize * 1.25 + strokeWidth * 2, fontSize);
+	return { width, height };
+};
+
+const normalizeTileCount = (count?: { x?: number; y?: number }): { x?: number; y?: number } => ({
+	x: count?.x ? Math.max(1, Math.floor(count.x)) : undefined,
+	y: count?.y ? Math.max(1, Math.floor(count.y)) : undefined
+});
+
 const renderTextLayer = async (
 	layer: TextWatermarkOptions,
 	canvasW: number,
@@ -73,26 +85,37 @@ const renderTextLayer = async (
 		tiled = false,
 		margin = 48,
 		strokeWidth = 1,
-		strokeColor = '#000000'
+		strokeColor = '#000000',
+		tileGap = {},
+		tileCount
 	} = layer;
 
 	const lines = text.split(/\r?\n/g).map(escapeSvg);
 	const { x, y, anchor } = resolvePosition(position, canvasW, canvasH, margin);
-
-	const tileRowH = fontSize * 4;
-	const tileColW = Math.max(text.length * fontSize * 0.6, 200);
+	const gapX = tileGap.x ?? 20;
+	const gapY = tileGap.y ?? 20;
+	const textSize = measureTextLayer(lines, fontSize, strokeWidth);
+	const normalizedTileCount = normalizeTileCount(tileCount);
+	const tileStepX = textSize.width + gapX;
+	const tileStepY = textSize.height + gapY;
+	const tileCols = normalizedTileCount.x ?? Math.ceil(canvasW / tileStepX) + 2;
+	const tileRows = normalizedTileCount.y ?? Math.ceil(canvasH / tileStepY) + 2;
+	const firstTileX = normalizedTileCount.x ? canvasW / 2 - ((tileCols - 1) * tileStepX) / 2 : -tileStepX * 0.5;
+	const firstTileY = normalizedTileCount.y ? canvasH / 2 - ((tileRows - 1) * tileStepY) / 2 : -tileStepY * 0.5;
 
 	const tiledElements = tiled
-		? Array.from({ length: Math.ceil(canvasH / tileRowH) + 2 }, (_, row) =>
-				Array.from({ length: Math.ceil(canvasW / tileColW) + 2 }, (_, col) => {
-					const tx = col * tileColW - tileColW * 0.5;
-					const ty = row * tileRowH;
+		? Array.from({ length: tileRows }, (_, row) =>
+				Array.from({ length: tileCols }, (_, col) => {
+					const tx = firstTileX + col * tileStepX;
+					const ty = firstTileY + row * tileStepY;
 					return `<text
 						x="${tx}" y="${ty}"
 						fill="${color}" fill-opacity="${opacity}"
 						font-size="${fontSize}" font-family="${fontFamilyName}" font-weight="700"
 						stroke="${strokeColor}" stroke-opacity="${opacity * 0.4}" stroke-width="${strokeWidth}"
-						transform="rotate(${angle}, ${tx}, ${ty})">${renderMultilineText(lines, x, y, fontSize)}</text>`;
+						text-anchor="middle"
+						dominant-baseline="middle"
+						transform="rotate(${angle}, ${tx}, ${ty})">${renderMultilineText(lines, tx, ty, fontSize)}</text>`;
 				}).join('')
 			).join('')
 		: `<text
@@ -122,7 +145,8 @@ const renderImageLayer = async (layer: ImageWatermarkOptions, canvasW: number, c
 		margin = 48,
 		angle = 0,
 		grayscale = false,
-		tileGap = {}
+		tileGap = {},
+		tileCount
 	} = layer;
 
 	const targetW = Math.round(canvasW * widthRatio);
@@ -136,24 +160,43 @@ const renderImageLayer = async (layer: ImageWatermarkOptions, canvasW: number, c
 		rawData[i] = Math.round(rawData[i] * opacity);
 	}
 
-	const wmW = info.width;
-	const wmH = info.height;
+	const baseWmW = info.width;
+	const baseWmH = info.height;
 
-	const wmBuffer = await sharp(rawData, { raw: { width: wmW, height: wmH, channels: 4 } })
+	const baseWmBuffer = await sharp(rawData, { raw: { width: baseWmW, height: baseWmH, channels: 4 } })
 		.png()
 		.toBuffer();
+
+	let wmBuffer: Buffer;
+	if (angle !== 0) {
+		wmBuffer = await sharp(baseWmBuffer)
+			.rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+			.png()
+			.toBuffer();
+	} else {
+		wmBuffer = baseWmBuffer;
+	}
+
+	const wmMeta = await sharp(wmBuffer).metadata();
+	const wmW = wmMeta.width ?? baseWmW;
+	const wmH = wmMeta.height ?? baseWmH;
 
 	if (tiled) {
 		const gapX = tileGap.x ?? 20;
 		const gapY = tileGap.y ?? 20;
+		const normalizedTileCount = normalizeTileCount(tileCount);
+		const tileCols = normalizedTileCount.x ?? Math.ceil(canvasW / (wmW + gapX)) + 2;
+		const tileRows = normalizedTileCount.y ?? Math.ceil(canvasH / (wmH + gapY)) + 2;
 		const stepX = wmW + gapX;
 		const stepY = wmH + gapY;
+		const firstTileLeft = normalizedTileCount.x ? canvasW / 2 - (tileCols * wmW + (tileCols - 1) * gapX) / 2 : -stepX;
+		const firstTileTop = normalizedTileCount.y ? canvasH / 2 - (tileRows * wmH + (tileRows - 1) * gapY) / 2 : -stepY;
 
 		const compositeInputs: sharp.OverlayOptions[] = [];
-		for (let row = -1; row * stepY < canvasH + stepY; row++) {
-			for (let col = -1; col * stepX < canvasW + stepX; col++) {
-				const left = col * stepX;
-				const top = row * stepY;
+		for (let row = 0; row < tileRows; row++) {
+			for (let col = 0; col < tileCols; col++) {
+				const left = Math.round(firstTileLeft + col * stepX);
+				const top = Math.round(firstTileTop + row * stepY);
 				if (left + wmW >= 0 && top + wmH >= 0 && left < canvasW && top < canvasH) {
 					compositeInputs.push({ input: wmBuffer, left, top });
 				}
@@ -168,32 +211,16 @@ const renderImageLayer = async (layer: ImageWatermarkOptions, canvasW: number, c
 			.toBuffer();
 	}
 
-	// Single positioned image — rotate if needed then place on canvas
-	let finalWm: Buffer;
-	if (angle !== 0) {
-		// Rotate the watermark with a transparent background
-		finalWm = await sharp(wmBuffer)
-			.rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
-			.png()
-			.toBuffer();
-	} else {
-		finalWm = wmBuffer;
-	}
-
-	const finalMeta = await sharp(finalWm).metadata();
-	const finalW = finalMeta.width ?? wmW;
-	const finalH = finalMeta.height ?? wmH;
-
 	const { x, y } = resolvePosition(position, canvasW, canvasH, margin);
 
 	// Clamp to canvas bounds
-	const left = Math.max(0, Math.min(canvasW - finalW, Math.round(x - finalW / 2)));
-	const top = Math.max(0, Math.min(canvasH - finalH, Math.round(y - finalH / 2)));
+	const left = Math.max(0, Math.min(canvasW - wmW, Math.round(x - wmW / 2)));
+	const top = Math.max(0, Math.min(canvasH - wmH, Math.round(y - wmH / 2)));
 
 	return sharp({
 		create: { width: canvasW, height: canvasH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
 	})
-		.composite([{ input: finalWm, left, top }])
+		.composite([{ input: wmBuffer, left, top }])
 		.png()
 		.toBuffer();
 };

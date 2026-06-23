@@ -106,6 +106,9 @@ export interface WatermarkProps {
 	/** Gap between tiles when tiled=true for image watermarks. */
 	tileGapX: number;
 	tileGapY: number;
+	/** Number of tile columns and rows when tiled=true. */
+	tileCountX: number;
+	tileCountY: number;
 }
 
 /** Options shared by both text and image watermarks. */
@@ -136,6 +139,10 @@ export interface TextWatermarkOptions extends WatermarkBase {
 	strokeWidth?: number;
 	/** Color of the text stroke. @default '#000000' */
 	strokeColor?: string;
+	/** Tile spacing in pixels (only used when tiled=true). @default  x: 20, y: 20  */
+	tileGap?: { x?: number; y?: number };
+	/** Number of tile columns and rows (only used when tiled=true). */
+	tileCount?: { x?: number; y?: number };
 }
 
 export interface ImageWatermarkOptions extends WatermarkBase {
@@ -148,6 +155,8 @@ export interface ImageWatermarkOptions extends WatermarkBase {
 	grayscale?: boolean;
 	/** Tile spacing in pixels (only used when tiled=true). @default  x: 20, y: 20  */
 	tileGap?: { x?: number; y?: number };
+	/** Number of tile columns and rows (only used when tiled=true). */
+	tileCount?: { x?: number; y?: number };
 }
 
 export interface UploadResult {

@@ -52,7 +52,9 @@ export async function POST(request: NextRequest) {
 			widthRatio,
 			grayscale,
 			tileGapX,
-			tileGapY
+			tileGapY,
+			tileCountX,
+			tileCountY
 		} = options;
 
 		// Build layers based on mode
@@ -71,7 +73,9 @@ export async function POST(request: NextRequest) {
 				tiled,
 				margin,
 				strokeWidth,
-				strokeColor
+				strokeColor,
+				tileGap: { x: tileGapX, y: tileGapY },
+				tileCount: { x: tileCountX, y: tileCountY }
 			});
 		}
 
@@ -91,7 +95,8 @@ export async function POST(request: NextRequest) {
 				margin,
 				widthRatio,
 				grayscale,
-				tileGap: { x: tileGapX, y: tileGapY }
+				tileGap: { x: tileGapX, y: tileGapY },
+				tileCount: { x: tileCountX, y: tileCountY }
 			});
 		}
 

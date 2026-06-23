@@ -30,6 +30,8 @@ const defaultOptions: WatermarkProps = {
 	grayscale: false,
 	tileGapX: 20,
 	tileGapY: 20,
+	tileCountX: 4,
+	tileCountY: 4,
 	layers: []
 };
 

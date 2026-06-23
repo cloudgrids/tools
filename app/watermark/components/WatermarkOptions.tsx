@@ -263,30 +263,6 @@ export const WatermarkOptions: React.FC<WatermarkOptionsProps> = ({
 							/>
 						</div>
 
-						{options.tiled && (
-							<div className="grid grid-cols-2 gap-3">
-								<RangeControl
-									id="watermark-tile-gap-x"
-									label="Tile Gap X"
-									value={options.tileGapX ?? 20}
-									min={0}
-									max={200}
-									step={4}
-									display={`${options.tileGapX ?? 20}px`}
-									onChange={(v) => set('tileGapX', v)}
-								/>
-								<RangeControl
-									id="watermark-tile-gap-y"
-									label="Tile Gap Y"
-									value={options.tileGapY ?? 20}
-									min={0}
-									max={200}
-									step={4}
-									display={`${options.tileGapY ?? 20}px`}
-									onChange={(v) => set('tileGapY', v)}
-								/>
-							</div>
-						)}
 					</>
 				)}
 
@@ -371,6 +347,55 @@ export const WatermarkOptions: React.FC<WatermarkOptionsProps> = ({
 						/>
 					</div>
 				</div>
+
+				{options.tiled && (
+					<div className="space-y-4">
+						<div className="grid grid-cols-2 gap-3">
+							<RangeControl
+								id="watermark-tile-count-x"
+								label="Tile Columns"
+								value={options.tileCountX ?? defaultOptions.tileCountX}
+								min={1}
+								max={20}
+								step={1}
+								display={`${options.tileCountX ?? defaultOptions.tileCountX}`}
+								onChange={(v) => set('tileCountX', v)}
+							/>
+							<RangeControl
+								id="watermark-tile-count-y"
+								label="Tile Rows"
+								value={options.tileCountY ?? defaultOptions.tileCountY}
+								min={1}
+								max={20}
+								step={1}
+								display={`${options.tileCountY ?? defaultOptions.tileCountY}`}
+								onChange={(v) => set('tileCountY', v)}
+							/>
+						</div>
+						<div className="grid grid-cols-2 gap-3">
+							<RangeControl
+								id="watermark-tile-gap-x"
+								label="Tile Gap X"
+								value={options.tileGapX ?? defaultOptions.tileGapX}
+								min={0}
+								max={200}
+								step={4}
+								display={`${options.tileGapX ?? defaultOptions.tileGapX}px`}
+								onChange={(v) => set('tileGapX', v)}
+							/>
+							<RangeControl
+								id="watermark-tile-gap-y"
+								label="Tile Gap Y"
+								value={options.tileGapY ?? defaultOptions.tileGapY}
+								min={0}
+								max={200}
+								step={4}
+								display={`${options.tileGapY ?? defaultOptions.tileGapY}px`}
+								onChange={(v) => set('tileGapY', v)}
+							/>
+						</div>
+					</div>
+				)}
 
 				{/* ── Output ───────────────────────────────────── */}
 				<SectionDivider label="Output" />
