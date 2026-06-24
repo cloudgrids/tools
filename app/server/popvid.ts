@@ -1,26 +1,23 @@
 'use server';
 
 import { GenerateInput, GenerateOutput, GenerateResult, MemeOutput, MemeStatus, UploadResult } from '@/lib/contracts';
-import { cookies } from 'next/headers';
 
-const headers = {
+const baseHeaders = {
 	Referer: 'https://popvid.ai/create?tab=story',
 	Origin: 'https://popvid.ai',
 	Accept: '*/*'
 };
 
-const getHeaders = async (): Promise<HeadersInit> => {
-	const cookieStore = await cookies();
-	const accessToken = cookieStore.get('popvid_access_token')?.value || '';
+const getHeaders = (accessToken: string): HeadersInit => {
 	return {
-		...headers,
+		...baseHeaders,
 		Cookie: `api-authorization=${accessToken}`
 	};
 };
 
-export const upload = async (file: File): Promise<UploadResult> => {
+export const upload = async (file: File, accessToken: string): Promise<UploadResult> => {
 	try {
-		const authHeaders = await getHeaders();
+		const authHeaders = getHeaders(accessToken);
 
 		console.log('Uploading file:', {
 			name: file.name,
@@ -74,12 +71,12 @@ export const upload = async (file: File): Promise<UploadResult> => {
 	}
 };
 
-export const generate = async (param: GenerateInput): Promise<GenerateOutput> => {
+export const generate = async (param: GenerateInput, accessToken: string): Promise<GenerateOutput> => {
 	try {
 		const res = await fetch('https://popvid.ai/api/v3/ugc/video/generate', {
 			body: JSON.stringify(param),
 			method: 'POST',
-			headers: { ...(await getHeaders()), 'Content-Type': 'application/json' }
+			headers: { ...getHeaders(accessToken), 'Content-Type': 'application/json' }
 		});
 
 		return (await res.json()) as GenerateOutput;
@@ -89,14 +86,14 @@ export const generate = async (param: GenerateInput): Promise<GenerateOutput> =>
 	}
 };
 
-export const getStatus = async (sessionId: string): Promise<GenerateResult> => {
+export const getStatus = async (sessionId: string, accessToken: string): Promise<GenerateResult> => {
 	if (!sessionId) {
 		console.error('No session ID available for video status check');
 		return { status: 'error' };
 	}
 
 	try {
-		const res = await fetch(`https://popvid.ai/api/v3/ugc/video/${sessionId}/status`, { method: 'GET', headers: await getHeaders() });
+		const res = await fetch(`https://popvid.ai/api/v3/ugc/video/${sessionId}/status`, { method: 'GET', headers: getHeaders(accessToken) });
 
 		if (!res.ok) throw new Error('Failed to get video status', { cause: await res.text() });
 
@@ -107,7 +104,7 @@ export const getStatus = async (sessionId: string): Promise<GenerateResult> => {
 	}
 };
 
-export const createMeme = async (prompt: string, memeId: string, sessionId: string): Promise<MemeOutput> => {
+export const createMeme = async (prompt: string, memeId: string, sessionId: string, accessToken: string): Promise<MemeOutput> => {
 	if (!prompt) {
 		console.error('No prompt provided for meme creation');
 		return { status: 'error', nodeId: '', prompt };
@@ -116,7 +113,7 @@ export const createMeme = async (prompt: string, memeId: string, sessionId: stri
 	try {
 		const res = await fetch(`https://popvid.ai/api/v3/meme/${sessionId}/story/${memeId}`, {
 			method: 'POST',
-			headers: { ...(await getHeaders()), 'Content-Type': 'application/json' },
+			headers: { ...getHeaders(accessToken), 'Content-Type': 'application/json' },
 			body: JSON.stringify({ textPrompt: prompt })
 		});
 
@@ -129,7 +126,7 @@ export const createMeme = async (prompt: string, memeId: string, sessionId: stri
 	}
 };
 
-export const getMemeStatus = async (memeId: string, nodeId: string): Promise<MemeStatus> => {
+export const getMemeStatus = async (memeId: string, nodeId: string, accessToken: string): Promise<MemeStatus> => {
 	if (!nodeId) {
 		console.error('No node ID available for meme status check');
 		return { status: 'error', nodeId: '', memeId, prompt: '' };
@@ -138,7 +135,7 @@ export const getMemeStatus = async (memeId: string, nodeId: string): Promise<Mem
 	try {
 		const res = await fetch(`https://popvid.ai/api/v3/meme/${memeId}/story/${nodeId}/status`, {
 			method: 'GET',
-			headers: await getHeaders()
+			headers: getHeaders(accessToken)
 		});
 
 		if (!res.ok) throw new Error('Failed to get meme status', { cause: await res.text() });

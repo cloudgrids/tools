@@ -35,7 +35,7 @@ export const usePopVid = () => {
 			const formdata = new FormData();
 			formdata.append('image', file);
 
-			const res = await upload(file);
+			const res = await upload(file, generateInput?.token || '');
 
 			setUploadResult(res);
 
@@ -64,14 +64,16 @@ export const usePopVid = () => {
 			...customInput
 		};
 
+		const accessToken = generateInput?.token || '';
+
 		try {
-			const res = await generate(payload);
+			const res = await generate(payload, accessToken);
 
 			setGenerateResult(res);
 
 			toast.success('Video generation started with PopVid');
 
-			await getVideoStatus(res.sessionId);
+			await getVideoStatus(res.sessionId, accessToken);
 
 			setHistory((prev) => [...prev, { ...payload, ...res }]);
 		} catch (error) {
@@ -81,15 +83,17 @@ export const usePopVid = () => {
 		}
 	};
 
-	const getVideoStatus = async (sessionId?: string): Promise<void> => {
+	const getVideoStatus = async (sessionId?: string, accessToken?: string): Promise<void> => {
 		const session = sessionId || generateResult?.sessionId;
 		if (!session) {
 			errorMessage(new Error('Missing session ID'), 'Session ID is required to get video status');
 			return;
 		}
 
+		const token = accessToken || generateInput?.token || '';
+
 		try {
-			const res = await getStatus(session as string);
+			const res = await getStatus(session as string, token);
 
 			setHistory((prev) =>
 				prev.map((item) => (item.sessionId === session ? { ...item, status: res.status, videoUrl: res.videoUrl } : item))
@@ -110,8 +114,10 @@ export const usePopVid = () => {
 			return;
 		}
 
+		const accessToken = generateInput?.token || '';
+
 		try {
-			const res = await createMeme(prompt, nodeOrSessionId, sessionId);
+			const res = await createMeme(prompt, nodeOrSessionId, sessionId, accessToken);
 			toast.success('Meme generation started with PopVid');
 
 			const newMeme = { memeId: sessionId, status: res.status, nodeId: res.nodeId, prompt } satisfies MemeStatus;
@@ -138,8 +144,9 @@ export const usePopVid = () => {
 	};
 
 	const getMEMEStatus = async (nodeOrSessionId: string, nodeId: string, isCustom: boolean = false): Promise<void> => {
+		const accessToken = generateInput?.token || '';
 		try {
-			const res = await getMemeStatus(nodeOrSessionId, nodeId);
+			const res = await getMemeStatus(nodeOrSessionId, nodeId, accessToken);
 
 			const highResUrl = res?.videoUrl?.replace('twist', 'enhanced');
 

@@ -4,7 +4,7 @@ import { Dropzone } from '@/components/Dropzone';
 import { Button } from '@/components/ui/button';
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
-import { CheckCircle2, ImageIcon, Loader2, Upload, X } from 'lucide-react';
+import { CheckCircle2, ImageIcon, ImagePlus, Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { FileProps } from './Generate';
@@ -21,6 +21,7 @@ export const StudioPanel = memo(({ files, setFiles, loading, mobile }: StudioPan
 	const { uploadResult } = usePopVidStore();
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const prevFileRef = useRef<File | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		const file = files[0]?.file ?? null;
@@ -42,6 +43,17 @@ export const StudioPanel = memo(({ files, setFiles, loading, mobile }: StudioPan
 		(selected: File[]) => {
 			if (!selected[0]) return;
 			setFiles([{ file: selected[0], uploaded: false }]);
+		},
+		[setFiles]
+	);
+
+	const onFileInputChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const file = e.target.files?.[0];
+			if (!file) return;
+			setFiles([{ file, uploaded: false }]);
+			// Reset input so the same file can be re-selected
+			e.target.value = '';
 		},
 		[setFiles]
 	);
@@ -81,6 +93,27 @@ export const StudioPanel = memo(({ files, setFiles, loading, mobile }: StudioPan
 				<div className={hasFile ? 'opacity-50 pointer-events-none' : ''}>
 					<Dropzone onFilesAdded={onFilesAdded} />
 				</div>
+
+				{!hasFile && (
+					<>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/*"
+							className="hidden"
+							onChange={onFileInputChange}
+						/>
+						<Button
+							type="button"
+							onClick={() => fileInputRef.current?.click()}
+							className="w-full gap-2 border border-dashed border-sky-500/50 bg-sky-500/5 hover:bg-sky-500/10 text-sky-500 hover:text-sky-400 transition-all h-10"
+							variant="ghost"
+						>
+							<ImagePlus className="size-4" />
+							Choose Image
+						</Button>
+					</>
+				)}
 
 				{hasFile && (
 					<div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
