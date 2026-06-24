@@ -362,24 +362,16 @@ export const HistoryTreePage: React.FC = () => {
 	const [search, setSearch] = useState('');
 	const [filter, setFilter] = useState<FilterType>('all');
 
-	// Selection state
 	const [selectedSessionId, setSelectedSessionId] = useState<string | null>(() => searchParams?.get('sessionId') || null);
 	const [selectedMemeIdx, setSelectedMemeIdx] = useState<number | null>(null);
-	const [selectedCustomId, setSelectedCustomId] = useState<string | null>(null);
+	const [selectedCustomId, setSelectedCustomId] = useState<string | null>(() => searchParams?.get('sessionId') || null);
 	const [panelMode, setPanelMode] = useState<RightPanelMode>(() =>
 		searchParams?.get('panel') === 'custom' ? 'custom' : searchParams?.get('panel') === 'session' ? 'session' : 'none'
 	);
 	const router = useRouter();
-
-	console.log('HistoryTreePage render', { selectedSessionId, selectedMemeIdx, selectedCustomId, panelMode });
-	// Mobile view: 'tree' shows left panel, 'detail' shows right panel
 	const [mobileView, setMobileView] = useState<'tree' | 'detail'>('tree');
-
-	// Custom session ID input
 	const [customIdInput, setCustomIdInput] = useState('');
 	const [showCustomInput, setShowCustomInput] = useState(false);
-
-	// ── Derived data ──────────────────────────────────────────────────────────
 
 	const filtered = useMemo(
 		() =>
@@ -391,7 +383,6 @@ export const HistoryTreePage: React.FC = () => {
 		[history, search, filter]
 	);
 
-	// Group customMemes by memeId (= the custom session ID)
 	const customGroups = useMemo(() => {
 		const map = new Map<string, MemeStatus[]>();
 		for (const m of customMemes) {
@@ -399,15 +390,12 @@ export const HistoryTreePage: React.FC = () => {
 			arr.push(m);
 			map.set(m.memeId, arr);
 		}
-		return Array.from(map.entries()); // [sessionId, memes[]]
+		return Array.from(map.entries());
 	}, [customMemes]);
 
 	const selectedSession = useMemo(() => history.find((h) => h.sessionId === selectedSessionId) ?? null, [history, selectedSessionId]);
-
 	const completed = history.filter((i) => i.status?.toLowerCase() === 'completed').length;
 	const totalMemes = history.reduce((acc, i) => acc + (i.memes?.length ?? 0), 0) + customMemes.length;
-
-	// ── Handlers ──────────────────────────────────────────────────────────────
 
 	const handleSelectSession = (item: GenerationHistory) => {
 		setSelectedSessionId(item.sessionId);
@@ -427,6 +415,11 @@ export const HistoryTreePage: React.FC = () => {
 		setSelectedMemeIdx(null);
 		setPanelMode('custom');
 		setMobileView('detail');
+
+		const params = new URLSearchParams(searchParams.toString());
+		params.set('sessionId', id);
+		params.set('panel', 'custom');
+		router.replace(`/generate/v2/history?${params.toString()}`);
 	};
 
 	const handleOpenCustomInput = () => {
@@ -435,6 +428,20 @@ export const HistoryTreePage: React.FC = () => {
 		handleSelectCustom(id);
 		setShowCustomInput(false);
 		setCustomIdInput('');
+		setCustomMemes((prev) =>
+			prev.some((m) => m.memeId === id)
+				? prev
+				: [
+						{
+							memeId: id,
+							nodeId: id,
+							prompt: 'Custom session',
+							status: 'enhanced_completed',
+							videoUrl: `https://cdn.popvid.ai/${id}/animationPro_${id}.mp4`
+						},
+						...prev
+					]
+		);
 	};
 
 	const handleDeleteCustomSession = (sessionId: string) => {
@@ -446,8 +453,6 @@ export const HistoryTreePage: React.FC = () => {
 		setCustomMemes((prev) => prev.filter((m) => m.nodeId !== nodeId));
 	};
 
-	// ── Render ────────────────────────────────────────────────────────────────
-
 	return (
 		<div className="flex flex-col h-full bg-[#080810] text-white overflow-hidden">
 			<div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -455,7 +460,6 @@ export const HistoryTreePage: React.FC = () => {
 				<div className="absolute top-1/2 -right-20 size-80 rounded-full bg-indigo-600/5 blur-3xl" />
 			</div>
 
-			{/* ─── Header ──────────────────────────────────────────────────────── */}
 			<header className="relative shrink-0 flex items-center gap-4 border-b border-white/8 px-4 py-3 sm:px-6">
 				<div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-violet-500/40 to-transparent" />
 				<Link
@@ -492,11 +496,7 @@ export const HistoryTreePage: React.FC = () => {
 				</div>
 			</header>
 
-			{/* ─── Body ────────────────────────────────────────────────────────── */}
 			<div className="relative flex flex-1 min-h-0 overflow-hidden">
-				{/* ═══ LEFT: Tree Panel ═══════════════════════════════════════════
-				     Mobile: full-width, shown when mobileView === 'tree'
-				     Desktop (lg+): fixed-width sidebar, always visible          */}
 				<aside
 					className={cn(
 						'flex flex-col border-r border-white/8 overflow-hidden',
@@ -505,7 +505,6 @@ export const HistoryTreePage: React.FC = () => {
 						'lg:flex lg:w-72 xl:w-80 lg:shrink-0'
 					)}
 				>
-					{/* Search + filter */}
 					<div className="shrink-0 p-3 border-b border-white/8 space-y-2">
 						<div className="relative">
 							<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/25" />
@@ -542,7 +541,6 @@ export const HistoryTreePage: React.FC = () => {
 						</div>
 					</div>
 
-					{/* Legend */}
 					<div className="shrink-0 px-3 py-2 border-b border-white/6">
 						<div className="flex items-center gap-3 text-[10px] text-white/25">
 							<div className="flex items-center gap-1.5">
@@ -561,9 +559,7 @@ export const HistoryTreePage: React.FC = () => {
 						</div>
 					</div>
 
-					{/* Tree scroll */}
 					<div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-						{/* ── History sessions ── */}
 						{filtered.length > 0 && (
 							<div>
 								<p className="text-[9px] font-bold uppercase tracking-widest text-white/20 px-1 mb-2">History Sessions</p>
@@ -605,7 +601,6 @@ export const HistoryTreePage: React.FC = () => {
 							</div>
 						)}
 
-						{/* ── Custom server sessions ── */}
 						{customGroups.length > 0 && (
 							<div>
 								<p className="text-[9px] font-bold uppercase tracking-widest text-white/20 px-1 mb-2">Server Sessions</p>
@@ -627,7 +622,6 @@ export const HistoryTreePage: React.FC = () => {
 						)}
 					</div>
 
-					{/* ── Custom Session ID input at bottom ── */}
 					<div className="shrink-0 border-t border-white/8 p-3">
 						{showCustomInput ? (
 							<div className="space-y-2">
@@ -676,16 +670,11 @@ export const HistoryTreePage: React.FC = () => {
 					</div>
 				</aside>
 
-				{/* Divider — desktop only */}
 				<div className="hidden lg:block relative shrink-0 w-px bg-white/8">
 					<div className="absolute inset-y-0 left-0 w-px bg-linear-to-b from-transparent via-violet-500/20 to-transparent" />
 				</div>
 
-				{/* ═══ RIGHT: Detail Panel ════════════════════════════════════════
-				     Mobile: full-width, shown when mobileView === 'detail'
-				     Desktop (lg+): flex-1 fill, always visible                  */}
 				<main className={cn('flex flex-col overflow-hidden flex-1', mobileView === 'detail' ? 'flex' : 'hidden', 'lg:flex')}>
-					{/* Mobile back bar */}
 					<div
 						className={cn(
 							'lg:hidden shrink-0 flex items-center gap-3 border-b border-white/8 px-4 py-2.5',

@@ -114,8 +114,6 @@ export const usePopVid = () => {
 			return;
 		}
 
-		console.log('makeMeme called with:', { prompt, nodeOrSessionId, sessionId, isCustom });
-
 		const accessToken = generateInput?.token || '';
 
 		try {

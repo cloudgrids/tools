@@ -19,14 +19,6 @@ export const upload = async (file: File, accessToken: string): Promise<UploadRes
 	try {
 		const authHeaders = getHeaders(accessToken);
 
-		console.log('Uploading file:', {
-			name: file.name,
-			type: file.type,
-			size: file.size
-		});
-
-		console.log('Request headers:', authHeaders);
-
 		const formData = new FormData();
 		formData.append('image', file);
 
@@ -36,13 +28,7 @@ export const upload = async (file: File, accessToken: string): Promise<UploadRes
 			headers: authHeaders
 		});
 
-		console.log('Response status:', res.status);
-		console.log('Response statusText:', res.statusText);
-		console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-
 		const responseText = await res.text();
-
-		console.log('Raw response body:', responseText);
 
 		if (!res.ok) {
 			throw new Error(`Upload failed (${res.status} ${res.statusText})\n${responseText}`);
@@ -55,8 +41,6 @@ export const upload = async (file: File, accessToken: string): Promise<UploadRes
 		} catch (e) {
 			throw new Error(`Expected JSON response but received:\n${responseText}:: ${e instanceof Error ? e.message : 'Unknown error'}`);
 		}
-
-		console.log('Parsed response:', data);
 
 		return data;
 	} catch (error) {
@@ -93,7 +77,10 @@ export const getStatus = async (sessionId: string, accessToken: string): Promise
 	}
 
 	try {
-		const res = await fetch(`https://popvid.ai/api/v3/ugc/video/${sessionId}/status`, { method: 'GET', headers: getHeaders(accessToken) });
+		const res = await fetch(`https://popvid.ai/api/v3/ugc/video/${sessionId}/status`, {
+			method: 'GET',
+			headers: getHeaders(accessToken)
+		});
 
 		if (!res.ok) throw new Error('Failed to get video status', { cause: await res.text() });
 

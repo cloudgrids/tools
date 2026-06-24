@@ -6,7 +6,6 @@ import { MemeStatus } from '@/lib/contracts';
 import { Clapperboard, Download, ExternalLink, Hash, Loader2, RefreshCw, Server, Sparkles, Trash2, Video } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 
-// ─── Status helpers ───────────────────────────────────────────────────────────
 const STATUS_COLORS: Record<string, { pill: string; dot: string }> = {
 	completed: { pill: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30', dot: 'bg-emerald-400' },
 	processing: { pill: 'bg-sky-500/15 text-sky-400 border-sky-500/30', dot: 'bg-sky-400 animate-pulse' },
@@ -16,7 +15,6 @@ const STATUS_COLORS: Record<string, { pill: string; dot: string }> = {
 const sc = (s?: string) => STATUS_COLORS[(s ?? 'pending').toLowerCase()] ?? STATUS_COLORS.pending;
 const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
 
-// ─── Meme card for custom memes ───────────────────────────────────────────────
 interface CustomMemeCardProps {
 	meme: MemeStatus;
 	idx: number;
@@ -29,8 +27,8 @@ interface CustomMemeCardProps {
 const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, onDelete, onRefresh }) => {
 	const colors = sc(meme.status);
 	return (
-		<div className="rounded-2xl border border-white/8 bg-white/[0.025] overflow-hidden">
-			<div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+		<div className="rounded-2xl border border-white/8 bg-white/2.5 overflow-hidden">
+			<div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-violet-500/20 to-transparent" />
 			{/* Header */}
 			<div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-white/6">
 				<div className="min-w-0">
@@ -49,7 +47,7 @@ const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, 
 				<div className="flex items-center gap-1.5 shrink-0">
 					<button
 						onClick={onRefresh}
-						className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/[0.04] px-2 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.08] transition-all"
+						className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/4 px-2 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/8 transition-all"
 					>
 						<RefreshCw className="size-3" /> Refresh
 					</button>
@@ -62,14 +60,12 @@ const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, 
 				</div>
 			</div>
 
-			{/* Prompt */}
 			{meme.prompt && (
 				<div className="px-4 pt-3 pb-2">
 					<p className="text-xs text-white/55 leading-relaxed line-clamp-3">{meme.prompt}</p>
 				</div>
 			)}
 
-			{/* Videos */}
 			{meme.videoUrl || meme.highResUrl ? (
 				<div className="px-4 pb-3 grid grid-cols-2 gap-3">
 					{meme.videoUrl && (
@@ -83,14 +79,14 @@ const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, 
 									href={meme.videoUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
 								>
 									<ExternalLink className="size-2.5" /> View
 								</a>
 								<a
 									href={meme.videoUrl}
 									download
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
 								>
 									<Download className="size-2.5" /> Save
 								</a>
@@ -108,14 +104,14 @@ const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, 
 									href={meme.highResUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
 								>
 									<ExternalLink className="size-2.5" /> View
 								</a>
 								<a
 									href={meme.highResUrl}
 									download
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
 								>
 									<Download className="size-2.5" /> Save
 								</a>
@@ -134,10 +130,7 @@ const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, 
 });
 CustomMemeCard.displayName = 'CustomMemeCard';
 
-// ─── Main: Custom Session Detail ──────────────────────────────────────────────
-
 interface CustomSessionDetailProps {
-	/** The raw video/session ID entered by the user — no ugc_video_ prefix expected */
 	sessionId: string;
 }
 
@@ -145,36 +138,26 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 	const { makeMeme, getMEMEStatus, loading } = usePopVid();
 	const customMemes = usePopVidStore((s) => s.customMemes);
 	const setCustomMemes = usePopVidStore((s) => s.setCustomMemes);
-
 	const [prompt, setPrompt] = useState('**Camera fixed on the full-body view**');
 	const [selectedSourceId, setSelectedSourceId] = useState('');
-	const rootUrl = useMemo(() => {
-		return `https://cdn.popvid.ai/${sessionId}/animationPro_${sessionId}.mp4`;
-	}, [sessionId]);
 
-	// All custom memes tied to THIS session ID
 	const sessionMemes = useMemo(() => customMemes.filter((m) => m.memeId === sessionId), [customMemes, sessionId]);
 
-	// Sources: original server video (raw ID) + any memes (twist ID → nodeId fallback)
 	const sources = useMemo(() => {
-		return [
-			{ id: sessionId, label: 'Original Video (Server)' },
-			// Include all memes: prefer twist ID from URL, fall back to nodeId
-			...sessionMemes.map((m, i) => ({
+		return [...sessionMemes]
+			.reverse()
+			.map((m, i) => ({
 				id: (getTwistId(m.videoUrl) ?? m.nodeId) as string,
-				label: `Meme #${i + 1}${m.videoUrl ? '' : ' (pending — nodeId)'}`
+				label: `Meme #${sessionMemes.length - i}${m.videoUrl ? '' : ' (pending — nodeId)'}`,
+				videoUrl: m.videoUrl
 			}))
-		].filter((s) => !!s.id);
-	}, [sessionId, sessionMemes]);
+			.filter((s) => !!s.id);
+	}, [sessionMemes]);
 
+	const currentTwist = useMemo(() => sources?.[0], [sources]);
 	const currentSourceId = selectedSourceId || sources[0]?.id || sessionId;
-	// sessionId = the custom video ID → becomes memeId in MemeStatus after API call
 
 	const handleCreate = () => {
-		// makeMeme(prompt, nodeOrSessionId, sessionId, isCustom)
-		// → nodeOrSessionId = currentSourceId (twist ID from existing meme, or raw server ID)
-		// → sessionId       = sessionId (raw custom ID → stored as memeId in MemeStatus)
-		// → isCustom = true  → saved to customMemes store, not history
 		makeMeme(prompt, currentSourceId, sessionId, true);
 	};
 
@@ -188,10 +171,8 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 
 	return (
 		<div className="flex flex-col h-full overflow-y-scroll">
-			{/* Header */}
 			<div className="shrink-0 px-6 py-5 border-b border-white/8">
 				<div className="flex items-start gap-4">
-					{/* Server icon placeholder (no local image) */}
 					<div className="flex size-16 shrink-0 items-center justify-center rounded-xl border border-violet-500/20 bg-violet-500/8">
 						<Server className="size-7 text-violet-400/60" />
 					</div>
@@ -212,14 +193,14 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 				</div>
 			</div>
 
-			{rootUrl && (
+			{currentTwist && (
 				<div className="shrink-0 px-6 py-4 border-b border-white/8">
 					<div className="flex items-center gap-2 mb-3">
 						<Video className="size-3.5 text-white/40" />
 						<span className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Generated Video</span>
 						<div className="ml-auto flex gap-2">
 							<a
-								href={rootUrl}
+								href={currentTwist.videoUrl}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/3 px-2.5 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.07] transition-all"
@@ -227,7 +208,7 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 								<ExternalLink className="size-3" /> View
 							</a>
 							<a
-								href={rootUrl}
+								href={currentTwist.videoUrl}
 								download
 								className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/3 px-2.5 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/[0.07] transition-all"
 							>
@@ -236,12 +217,11 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 						</div>
 					</div>
 					<div className="rounded-xl overflow-hidden border border-white/8 bg-black">
-						<video src={rootUrl} controls preload="metadata" className="w-full aspect-video object-contain" />
+						<video src={currentTwist.videoUrl} controls preload="metadata" className="w-full aspect-video object-contain" />
 					</div>
 				</div>
 			)}
 
-			{/* ─── Create Meme ─────────────────────────────────────────────────── */}
 			<div className="shrink-0 px-6 py-5 border-b border-white/8">
 				<div className="flex items-center gap-2 mb-4">
 					<div className="flex size-6 items-center justify-center rounded-md bg-violet-500/15">
@@ -257,7 +237,6 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 				</div>
 
 				<div className="space-y-3">
-					{/* Source selector */}
 					<div>
 						<label className="text-[11px] font-semibold uppercase tracking-wider text-white/35 mb-1.5 block">
 							Source Video
@@ -265,7 +244,7 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 						<select
 							value={currentSourceId}
 							onChange={(e) => setSelectedSourceId(e.target.value)}
-							className="w-full rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5 text-sm text-white/70 outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-all appearance-none cursor-pointer"
+							className="w-full rounded-xl border border-white/8 bg-white/3 px-3 py-2.5 text-sm text-white/70 outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-all appearance-none cursor-pointer"
 						>
 							{sources.map((src) => (
 								<option key={src.id} value={src.id} className="bg-[#0c0c10]">
@@ -273,8 +252,7 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 								</option>
 							))}
 						</select>
-						{/* API call preview — shows exact values sent to createMeme() */}
-						<div className="mt-2 rounded-lg border border-white/6 bg-white/[0.015] px-3 py-2 space-y-1">
+						<div className="mt-2 rounded-lg border border-white/6 bg-white/1.5 px-3 py-2 space-y-1">
 							<div className="flex items-start gap-2">
 								<span className="shrink-0 text-[9px] font-bold uppercase tracking-widest text-violet-400/60 w-24">
 									nodeOrSessionId
@@ -293,7 +271,6 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 						</div>
 					</div>
 
-					{/* Prompt */}
 					<div>
 						<label className="text-[11px] font-semibold uppercase tracking-wider text-white/35 mb-1.5 block">Meme Prompt</label>
 						<textarea
@@ -301,19 +278,18 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 							onChange={(e) => setPrompt(e.target.value)}
 							rows={3}
 							placeholder="**Camera fixed on the full-body view**"
-							className="w-full rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5 text-sm text-white/70 placeholder:text-white/20 outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-all resize-y leading-relaxed"
+							className="w-full rounded-xl border border-white/8 bg-white/3 px-3 py-2.5 text-sm text-white/70 placeholder:text-white/20 outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-all resize-y leading-relaxed"
 						/>
 					</div>
 
-					{/* Create button */}
 					<button
 						onClick={handleCreate}
 						disabled={!prompt.trim() || loading || !currentSourceId}
 						className="relative w-full h-11 rounded-xl font-semibold text-sm text-white overflow-hidden transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
 					>
-						<div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 group-hover:from-violet-700 group-hover:to-indigo-700 transition-all" />
-						<div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-						<div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+						<div className="absolute inset-0 bg-linear-to-r from-violet-600 to-indigo-600 group-hover:from-violet-700 group-hover:to-indigo-700 transition-all" />
+						<div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+						<div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/25 to-transparent" />
 						<span className="relative flex items-center justify-center gap-2">
 							{loading ? (
 								<>
@@ -330,11 +306,10 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 				</div>
 			</div>
 
-			{/* ─── Memes list ──────────────────────────────────────────────────── */}
 			<div className="shrink-0 overflow-y-auto px-6 py-4">
-				{sessionMemes.length === 0 ? (
+				{!sessionMemes.length ? (
 					<div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-						<div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.03] border border-white/8">
+						<div className="flex size-12 items-center justify-center rounded-2xl bg-white/3 border border-white/8">
 							<Sparkles className="size-5 text-white/15" />
 						</div>
 						<p className="text-sm text-white/30">No memes yet</p>
