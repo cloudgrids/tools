@@ -3,145 +3,14 @@
 import { usePopVidStore } from '@/hooks/popvid.store';
 import { usePopVid } from '@/hooks/usePopVid';
 import { GenerationHistory, MemeStatus } from '@/lib/contracts';
-import { Clapperboard, Clock, Copy, Download, ExternalLink, Loader2, RefreshCw, Sparkles, Trash2, Video } from 'lucide-react';
+import { Clapperboard, Clock, Copy, Download, ExternalLink, Loader2, Sparkles, Video } from 'lucide-react';
 import Image from 'next/image';
 import { memo, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-
-const STATUS_COLORS: Record<string, { pill: string; dot: string; ring: string }> = {
-	completed: { pill: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30', dot: 'bg-emerald-400', ring: 'ring-emerald-500/20' },
-	processing: { pill: 'bg-sky-500/15 text-sky-400 border-sky-500/30', dot: 'bg-sky-400 animate-pulse', ring: 'ring-sky-500/20' },
-	pending: { pill: 'bg-amber-500/15 text-amber-400 border-amber-500/30', dot: 'bg-amber-400 animate-pulse', ring: 'ring-amber-500/20' },
-	failed: { pill: 'bg-red-500/15 text-red-400 border-red-500/30', dot: 'bg-red-400', ring: 'ring-red-500/20' }
-};
-
-const sc = (s?: string) => STATUS_COLORS[(s ?? 'pending').toLowerCase()] ?? STATUS_COLORS.pending;
-
-const getImageUrl = (item: GenerationHistory) => `https://storage.googleapis.com/${item.imageBucket}/${item.imagePath}`;
+import { getImageUrl, sc } from './HistoryTreePage';
+import { MemeCard } from './MemeCard';
 
 const getTwistId = (url?: string) => url?.match(/\/twist_([^/]+)\.mp4$/i)?.[1];
-
-interface MemeCardProps {
-	meme: MemeStatus;
-	idx: number;
-	total: number;
-	sessionId: string;
-	isCustom: boolean;
-	onDelete: () => void;
-	onRefresh: () => void;
-}
-
-const MemeCard: React.FC<MemeCardProps> = memo(({ meme, idx, total, onDelete, onRefresh }) => {
-	const colors = sc(meme.status);
-	return (
-		<div className="relative rounded-2xl border border-white/8 bg-white/2.5 overflow-hidden group">
-			<div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-violet-500/30 to-transparent" />
-
-			{/* Header */}
-			<div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-white/6">
-				<div className="min-w-0">
-					<div className="flex items-center gap-2 mb-0.5">
-						<Clapperboard className="size-3.5 text-violet-400/70 shrink-0" />
-						<span className="text-xs font-bold text-white/80">Meme #{total - idx}</span>
-						<span
-							className={`inline-flex items-center gap-1 rounded-full border px-2 py-px text-[10px] font-semibold capitalize ${colors.pill}`}
-						>
-							<span className={`size-1.5 rounded-full ${colors.dot}`} />
-							{meme.status ?? 'pending'}
-						</span>
-					</div>
-					<p className="text-[11px] text-white/40 font-mono truncate">node: {meme.nodeId ?? '—'}</p>
-				</div>
-				<div className="flex items-center gap-1.5 shrink-0">
-					<button
-						onClick={onRefresh}
-						className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/4 px-2 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/8 transition-all"
-					>
-						<RefreshCw className="size-3" />
-						Refresh
-					</button>
-					<button
-						onClick={onDelete}
-						className="rounded-lg border border-red-500/20 bg-red-500/8 p-1.5 text-red-400/60 hover:text-red-400 hover:bg-red-500/15 transition-all"
-					>
-						<Trash2 className="size-3" />
-					</button>
-				</div>
-			</div>
-
-			{/* Prompt */}
-			{meme.prompt && (
-				<div className="px-4 pt-3 pb-2">
-					<p className="text-xs text-white/60 leading-relaxed line-clamp-3">{meme.prompt}</p>
-				</div>
-			)}
-
-			{/* Video previews */}
-			{(meme.videoUrl || meme.highResUrl) && (
-				<div className="px-4 pb-3 grid grid-cols-2 gap-3">
-					{meme.videoUrl && (
-						<div>
-							<p className="text-[10px] font-semibold uppercase tracking-wider text-white/25 mb-1.5">Low Res</p>
-							<div className="rounded-xl overflow-hidden border border-white/8 bg-black">
-								<video src={meme.videoUrl} controls preload="metadata" className="w-full aspect-video object-contain" />
-							</div>
-							<div className="flex gap-1.5 mt-1.5">
-								<a
-									href={meme.videoUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
-								>
-									<ExternalLink className="size-2.5" /> View
-								</a>
-								<a
-									href={meme.videoUrl}
-									download
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
-								>
-									<Download className="size-2.5" /> Save
-								</a>
-							</div>
-						</div>
-					)}
-					{meme.highResUrl && (
-						<div>
-							<p className="text-[10px] font-semibold uppercase tracking-wider text-white/25 mb-1.5">High Res</p>
-							<div className="rounded-xl overflow-hidden border border-white/8 bg-black">
-								<video src={meme.highResUrl} controls preload="metadata" className="w-full aspect-video object-contain" />
-							</div>
-							<div className="flex gap-1.5 mt-1.5">
-								<a
-									href={meme.highResUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
-								>
-									<ExternalLink className="size-2.5" /> View
-								</a>
-								<a
-									href={meme.highResUrl}
-									download
-									className="flex-1 flex items-center justify-center gap-1 rounded-lg border border-white/8 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/5 transition-all"
-								>
-									<Download className="size-2.5" /> Save
-								</a>
-							</div>
-						</div>
-					)}
-				</div>
-			)}
-
-			{!meme.videoUrl && !meme.highResUrl && (
-				<div className="flex flex-col items-center gap-2 py-6 text-white/20">
-					<Loader2 className="size-5 animate-spin" />
-					<p className="text-[11px]">Generating meme…</p>
-				</div>
-			)}
-		</div>
-	);
-});
-MemeCard.displayName = 'MemeCard';
 
 interface SessionDetailProps {
 	session: GenerationHistory;
@@ -206,7 +75,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 
 	return (
 		<div className="flex flex-col overflow-y-scroll">
-			{/* Session header */}
 			<div className="shrink-0 px-6 py-5 border-b border-white/8">
 				<div className="flex items-start gap-4">
 					{/* Thumbnail */}
@@ -244,7 +112,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 				</div>
 			</div>
 
-			{/* Session video */}
 			{session.videoUrl && (
 				<div className="shrink-0 px-6 py-4 border-b border-white/8">
 					<div className="flex items-center gap-2 mb-3">
@@ -274,7 +141,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 				</div>
 			)}
 
-			{/* ─── Make Meme Section ─────────────────────────────────────────── */}
 			<div className="shrink-0 px-6 py-4 border-b border-white/8">
 				<div className="flex items-center gap-2 mb-4">
 					<div className="flex size-6 items-center justify-center rounded-md bg-violet-500/15">
@@ -284,7 +150,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 				</div>
 
 				<div className="space-y-3">
-					{/* Source selector */}
 					<div>
 						<label className="text-[11px] font-semibold uppercase tracking-wider text-white/35 mb-1.5 block">
 							Source Video
@@ -300,7 +165,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 								</option>
 							))}
 						</select>
-						{/* API call preview */}
 						<div className="mt-2 rounded-lg border border-white/6 bg-white/15 px-3 py-2 space-y-1">
 							<div className="flex items-start gap-2">
 								<span className="shrink-0 text-[9px] font-bold uppercase tracking-widest text-violet-400/60 w-24">
@@ -320,7 +184,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 						</div>
 					</div>
 
-					{/* Prompt */}
 					<div>
 						<label className="text-[11px] font-semibold uppercase tracking-wider text-white/35 mb-1.5 block">Meme Prompt</label>
 						<textarea
@@ -332,7 +195,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 						/>
 					</div>
 
-					{/* Generate button */}
 					<button
 						onClick={handleMakeMeme}
 						disabled={!prompt.trim() || loading || !currentSourceId}
@@ -357,7 +219,6 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 				</div>
 			</div>
 
-			{/* ─── Memes List ────────────────────────────────────────────────── */}
 			<div className="shrink-0 min-h-0 overflow-y-auto px-6 py-4">
 				{memes.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-12 text-center gap-3">

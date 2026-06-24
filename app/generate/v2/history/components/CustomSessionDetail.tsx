@@ -29,7 +29,6 @@ const CustomMemeCard: React.FC<CustomMemeCardProps> = memo(({ meme, idx, total, 
 	return (
 		<div className="rounded-2xl border border-white/8 bg-white/2.5 overflow-hidden">
 			<div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-violet-500/20 to-transparent" />
-			{/* Header */}
 			<div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-white/6">
 				<div className="min-w-0">
 					<div className="flex items-center gap-2 mb-0.5">
@@ -165,8 +164,8 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 		setCustomMemes((prev) => prev.filter((m) => m.nodeId !== nodeId));
 	};
 
-	const handleRefresh = (meme: MemeStatus) => {
-		getMEMEStatus(meme.memeId, meme.nodeId, true);
+	const handleRefresh = (memeId: string, nodeId: string) => {
+		getMEMEStatus(memeId, nodeId, true);
 	};
 
 	return (
@@ -177,15 +176,41 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 						<Server className="size-7 text-violet-400/60" />
 					</div>
 					<div className="flex-1 min-w-0">
-						<div className="flex items-center gap-2 mb-1.5">
-							<span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 text-xs font-semibold text-sky-400">
-								<Server className="size-3" /> Custom Server Session
-							</span>
+						<div className="flex flex-row justify-between">
+							<div className="flex-flex-col">
+								<div className="flex items-center gap-2 mb-1.5">
+									<span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 text-xs font-semibold text-sky-400">
+										<Server className="size-3" /> Custom Server Session
+									</span>
+								</div>
+
+								<div className="flex items-center gap-1.5 text-xs font-mono text-white/50 break-all">
+									<Hash className="size-3 shrink-0 text-white/25" />
+									{sessionId}
+								</div>
+							</div>
+
+							<div className="flex flex-row space-x-1.5">
+								<select
+									value={currentSourceId}
+									onChange={(e) => setSelectedSourceId(e.target.value)}
+									className="rounded-xl border border-white/8 bg-white/3 px-3 py-2.5 text-sm text-white/70 outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-all appearance-none cursor-pointer"
+								>
+									{sources.map((src) => (
+										<option key={src.id} value={src.id} className="bg-[#0c0c10]">
+											{src.label}
+										</option>
+									))}
+								</select>
+								<button
+									onClick={() => handleRefresh(sessionId, currentSourceId)}
+									className="flex items-center gap-1 rounded-lg border border-white/8 bg-white/4 px-2 py-1 text-[10px] text-white/40 hover:text-white/80 hover:bg-white/8 transition-all"
+								>
+									<RefreshCw className="size-3" /> Refresh
+								</button>
+							</div>
 						</div>
-						<div className="flex items-center gap-1.5 text-xs font-mono text-white/50 break-all">
-							<Hash className="size-3 shrink-0 text-white/25" />
-							{sessionId}
-						</div>
+
 						<p className="mt-1.5 text-[11px] text-white/30 leading-relaxed">
 							This video lives on PopVid&apos;s server. Memes created here are tracked as custom sessions.
 						</p>
@@ -331,7 +356,7 @@ export const CustomSessionDetail: React.FC<CustomSessionDetailProps> = memo(({ s
 								total={sessionMemes.length}
 								sessionId={sessionId}
 								onDelete={() => handleDelete(meme.nodeId)}
-								onRefresh={() => handleRefresh(meme)}
+								onRefresh={() => handleRefresh(meme.memeId, meme.nodeId)}
 							/>
 						))}
 					</div>
