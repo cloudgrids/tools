@@ -181,7 +181,7 @@ export const SessionDetail: React.FC<SessionDetailProps> = memo(({ session }) =>
 		return sources[0]?.id;
 	}, [memes, sources]);
 
-	const currentSourceId = selectedSourceId || defaultSourceId || '';
+	const currentSourceId = defaultSourceId || selectedSourceId || '';
 	const memeSessionId = session.sessionId;
 
 	const handleMakeMeme = () => {
